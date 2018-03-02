@@ -2,5 +2,24 @@
 
 require "conflow/version"
 
+require "redis"
+
+require "conflow/redis/connection_wrapper"
+require "conflow/redis/field"
+require "conflow/redis/hash_field"
+require "conflow/redis/array_field"
+
 module Conflow
+  class << self
+    attr_reader :redis
+
+    def redis=(conn)
+      @redis =
+        if defined?(ConnectionPool) && conn.is_a?(ConnectionPool)
+          conn
+        else
+          Conflow::Redis::ConnectionWrapper.new(conn)
+        end
+    end
+  end
 end
