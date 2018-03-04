@@ -8,6 +8,7 @@ require "conflow/redis/connection_wrapper"
 require "conflow/redis/field"
 require "conflow/redis/hash_field"
 require "conflow/redis/array_field"
+require "conflow/redis/field_builder"
 
 module Conflow
   class << self
