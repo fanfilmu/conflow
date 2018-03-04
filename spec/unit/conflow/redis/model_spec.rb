@@ -5,9 +5,10 @@ RSpec.describe Conflow::Redis::Model, redis: true do
     Struct.new(:key) do
       extend Conflow::Redis::Model
 
-      field :params, :hash
+      field :params,  :hash
       field :records, :array
-      field :status, :value
+      field :status,  :value
+      field :set,     :sorted_set
     end
   end
 
@@ -15,6 +16,13 @@ RSpec.describe Conflow::Redis::Model, redis: true do
 
   it "defines proper methods" do
     expect(instance).to respond_to(:params, :params=, :records, :records=, :status, :status=)
+  end
+
+  it "defines proper getters" do
+    expect(instance.params).to  be_a_kind_of(Conflow::Redis::HashField)
+    expect(instance.records).to be_a_kind_of(Conflow::Redis::ArrayField)
+    expect(instance.status).to  be_a_kind_of(Conflow::Redis::ValueField)
+    expect(instance.set).to     be_a_kind_of(Conflow::Redis::SortedSetField)
   end
 
   context "when type is incorrect" do

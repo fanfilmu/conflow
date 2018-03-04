@@ -6,9 +6,10 @@ module Conflow
     module Model
       def field(name, type)
         case type
-        when :hash  then FieldBuilder.new(name, Conflow::Redis::HashField).call(self)
-        when :array then FieldBuilder.new(name, Conflow::Redis::ArrayField).call(self)
-        when :value then FieldBuilder.new(name, Conflow::Redis::ValueField).call(self)
+        when :hash       then FieldBuilder.new(name, Conflow::Redis::HashField).call(self)
+        when :array      then FieldBuilder.new(name, Conflow::Redis::ArrayField).call(self)
+        when :value      then FieldBuilder.new(name, Conflow::Redis::ValueField).call(self)
+        when :sorted_set then FieldBuilder.new(name, Conflow::Redis::SortedSetField).call(self)
         else raise ArgumentError, "Unknown type: #{type}. Should be one of: [:hash, :array]"
         end
       end
