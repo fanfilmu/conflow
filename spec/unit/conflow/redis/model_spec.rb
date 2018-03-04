@@ -7,13 +7,14 @@ RSpec.describe Conflow::Redis::Model, redis: true do
 
       field :params, :hash
       field :records, :array
+      field :status, :value
     end
   end
 
   let(:instance) { test_class.new("test_key") }
 
   it "defines proper methods" do
-    expect(instance).to respond_to(:params, :params=, :records, :records=)
+    expect(instance).to respond_to(:params, :params=, :records, :records=, :status, :status=)
   end
 
   context "when type is incorrect" do

@@ -8,6 +8,7 @@ module Conflow
         case type
         when :hash  then FieldBuilder.new(name, Conflow::Redis::HashField).call(self)
         when :array then FieldBuilder.new(name, Conflow::Redis::ArrayField).call(self)
+        when :value then FieldBuilder.new(name, Conflow::Redis::ValueField).call(self)
         else raise ArgumentError, "Unknown type: #{type}. Should be one of: [:hash, :array]"
         end
       end
