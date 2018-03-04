@@ -13,6 +13,13 @@ module Conflow
         else raise ArgumentError, "Unknown type: #{type}. Should be one of: [:hash, :array]"
         end
       end
+
+      # rubocop:disable Naming/PredicateName
+      def has_many(name, klass, field_name: "#{name.to_s.chop}_ids")
+        field(field_name, :array)
+        define_method(name) { send(field_name).map { |id| klass.new(id) } }
+      end
+      # rubocop:enable Naming/PredicateName
     end
   end
 end

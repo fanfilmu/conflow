@@ -38,4 +38,40 @@ RSpec.describe Conflow::Redis::Model, redis: true do
       expect { test_class }.to raise_error(ArgumentError, "Unknown type: linked_list. Should be one of: [:hash, :array]")
     end
   end
+
+  describe ".has_many" do
+    let(:related_model) do
+      Struct.new(:key) do
+        extend Conflow::Redis::Model
+        alias_method :id, :key
+        field :name, :value
+      end
+    end
+
+    let(:test_class) do
+      m = related_model
+
+      Struct.new(:key) do
+        extend Conflow::Redis::Model
+        alias_method :id, :key
+        has_many :workers, m
+      end
+    end
+
+    it "defines #worker_ids array" do
+      expect(instance.worker_ids).to eq []
+    end
+
+    context "when there are some associated objects" do
+      before do
+        worker = related_model.new("test_worker")
+        worker.name = "Heavy"
+        instance.worker_ids << worker.id
+      end
+
+      it "has access to them" do
+        expect(instance.workers).to all(satisfy { |worker| worker.name == "Heavy" })
+      end
+    end
+  end
 end

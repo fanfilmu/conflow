@@ -5,6 +5,7 @@ module Conflow
     # Base class for fields. All fields are assigned a Redis key.
     class Field
       attr_reader :key
+      alias id key
 
       def initialize(key)
         @key = key
