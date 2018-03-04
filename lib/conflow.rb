@@ -12,6 +12,7 @@ require "conflow/redis/array_field"
 require "conflow/redis/sorted_set_field"
 require "conflow/redis/field_builder"
 require "conflow/redis/model"
+require "conflow/redis/identifier"
 
 module Conflow
   class << self
