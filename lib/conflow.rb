@@ -2,6 +2,7 @@
 
 require "conflow/version"
 
+require "digest"
 require "redis"
 
 require "conflow/redis/connection_wrapper"
@@ -13,6 +14,8 @@ require "conflow/redis/sorted_set_field"
 require "conflow/redis/field_builder"
 require "conflow/redis/model"
 require "conflow/redis/identifier"
+
+require "conflow/redis/script"
 
 module Conflow
   class << self
