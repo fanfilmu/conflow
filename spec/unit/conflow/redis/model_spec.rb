@@ -3,7 +3,7 @@
 RSpec.describe Conflow::Redis::Model, redis: true do
   let(:test_class) do
     Struct.new(:key) do
-      extend Conflow::Redis::Model
+      include Conflow::Redis::Model
 
       field :params,  :hash
       field :records, :array
@@ -25,10 +25,32 @@ RSpec.describe Conflow::Redis::Model, redis: true do
     expect(instance.set).to     be_a_kind_of(Conflow::Redis::SortedSetField)
   end
 
+  describe "#==" do
+    subject { instance == other }
+
+    context "when other is a model with same key" do
+      let(:other) { test_class.new("test_key") }
+
+      it { is_expected.to eq true }
+    end
+
+    context "when other is a model with different key" do
+      let(:other) { test_class.new("other_key") }
+
+      it { is_expected.to eq false }
+    end
+
+    context "when other is not a model" do
+      let(:other) { 700 }
+
+      it { is_expected.to eq false }
+    end
+  end
+
   context "when type is incorrect" do
     let(:test_class) do
       Struct.new(:key) do
-        extend Conflow::Redis::Model
+        include Conflow::Redis::Model
 
         field :params, :linked_list
       end
@@ -42,7 +64,7 @@ RSpec.describe Conflow::Redis::Model, redis: true do
   describe ".has_many" do
     let(:related_model) do
       Struct.new(:key) do
-        extend Conflow::Redis::Model
+        include Conflow::Redis::Model
         alias_method :id, :key
         field :name, :value
       end
@@ -52,7 +74,7 @@ RSpec.describe Conflow::Redis::Model, redis: true do
       m = related_model
 
       Struct.new(:key) do
-        extend Conflow::Redis::Model
+        include Conflow::Redis::Model
         alias_method :id, :key
         has_many :workers, m
       end
