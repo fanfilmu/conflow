@@ -35,7 +35,7 @@ module Conflow
       end
 
       def keys
-        command :hkeys, [key]
+        command(:hkeys, [key]).map(&:to_sym)
       end
 
       def size
@@ -43,7 +43,9 @@ module Conflow
       end
 
       def to_h
-        command(:hgetall, [key]).transform_values { |value| value && JSON.parse(value) }
+        command(:hgetall, [key]).each_with_object({}) do |(key, value), hash|
+          hash[key.to_sym] = JSON.parse(value)
+        end
       end
 
       def each(&block)
