@@ -4,13 +4,14 @@ module Conflow
   class Flow < Conflow::Redis::Field
     # Handles running and finishing jobs
     module JobHandler
-      def run(job_class, params: {}, after: [])
-        build_job(job_class, params).tap do |job|
+      def run(job_class, params: {}, after: [], hook: nil)
+        build_job(job_class, params, hook).tap do |job|
           call_script(Conflow::Redis::AddJobScript, job, after: after)
         end
       end
 
-      def finish(job)
+      def finish(job, result = nil)
+        send(job.hook.to_s, result) unless job.hook.nil?
         call_script(Conflow::Redis::CompleteJobScript, job)
       end
 
@@ -22,9 +23,10 @@ module Conflow
         end
       end
 
-      def build_job(job_class, params)
+      def build_job(job_class, params, hook)
         Conflow::Job.new.tap do |job|
           job.params = params if params.any?
+          job.hook = hook if hook
           job.class_name = job_class.name
         end
       end

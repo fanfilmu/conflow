@@ -31,4 +31,20 @@ RSpec.describe Conflow::Flow, redis: true, fixtures: true do
 
     it { expect { subject }.to change { test_value }.to(-35) }
   end
+
+  context "for flow with hooks" do
+    before do
+      allow($stdout).to receive(:puts)
+
+      job = flow.run Operation, params: { operator: :+, number: 1 }
+      flow.run Operation, params: { operator: :*, number: 3 }, after: job, hook: :fizz
+    end
+
+    it { expect { subject }.to change { test_value }.to(3) }
+
+    it "calls hook" do
+      expect($stdout).to receive(:puts).with("Fizz")
+      subject
+    end
+  end
 end

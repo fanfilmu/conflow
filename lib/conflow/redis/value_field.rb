@@ -16,6 +16,10 @@ module Conflow
         end
       end
 
+      def nil?
+        to_s.nil?
+      end
+
       def to_s
         command :get, [key]
       end; alias to_str to_s

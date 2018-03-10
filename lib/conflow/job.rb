@@ -10,6 +10,7 @@ module Conflow
     field :params,     :hash
     field :class_name, :value
     field :status,     :value # 0 - pending, 1 - finished
+    field :hook,       :value
 
     def initialize(*)
       super

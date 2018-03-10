@@ -25,7 +25,7 @@ module FixturesHelper
   end
 
   class Operation
-    attr_reader :operator, :number, :key
+    attr_reader :operator, :number, :key, :new_value
 
     def initialize(operator:, number:)
       @operator = operator
@@ -35,11 +35,13 @@ module FixturesHelper
 
     def call
       sleep(rand / 10)
+
       Conflow.redis.with do |conn|
         result = nil
-
         result = perform_operation(conn) while result.nil?
       end
+
+      new_value
     end
 
     private
@@ -47,7 +49,7 @@ module FixturesHelper
     def perform_operation(conn)
       conn.watch(key) do
         value = conn.get key
-        new_value = value.to_i.send(operator, number)
+        @new_value = value.to_i.send(operator, number)
         conn.multi { |multi| multi.set(key, new_value) }
       end
     end
@@ -56,6 +58,10 @@ module FixturesHelper
   class ThreadBasedFlow < Conflow::Flow
     def queue(job)
       Worker.queue << [id, job.id]
+    end
+
+    def fizz(result)
+      puts "Fizz" if result % 3 == 0
     end
   end
 
@@ -67,8 +73,8 @@ module FixturesHelper
     end
 
     def call
-      perform(*self.class.queue.pop) do |worker_type, params|
-        worker_type.new(params).call
+      perform(*self.class.queue.pop) do |worker_type, parameters|
+        worker_type.new(parameters).call
       end
     end
   end
