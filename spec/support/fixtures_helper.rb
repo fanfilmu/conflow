@@ -60,19 +60,16 @@ module FixturesHelper
   end
 
   class Worker
+    include Conflow::Worker
+
     def self.queue
       @queue ||= Queue.new
     end
 
     def call
-      flow_id, job_id = self.class.queue.pop
-
-      flow = Conflow::Flow.find(flow_id)
-      job = Conflow::Job.new(job_id)
-
-      job.worker_type.new(job.params).call
-
-      flow.finish(job)
+      perform(*self.class.queue.pop) do |worker_type, params|
+        worker_type.new(params).call
+      end
     end
   end
 end

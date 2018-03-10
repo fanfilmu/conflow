@@ -24,6 +24,7 @@ require "conflow/redis/complete_job_script"
 require "conflow/job"
 require "conflow/flow/job_handler"
 require "conflow/flow"
+require "conflow/worker"
 
 module Conflow
   class << self
