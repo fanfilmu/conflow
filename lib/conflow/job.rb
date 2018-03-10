@@ -15,5 +15,9 @@ module Conflow
       super
       self.status = 0
     end
+
+    def worker_type
+      Object.const_get(class_name.to_s)
+    end
   end
 end
