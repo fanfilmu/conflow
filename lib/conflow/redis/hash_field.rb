@@ -46,7 +46,7 @@ module Conflow
         command(:hgetall, [key]).each_with_object({}) do |(key, value), hash|
           hash[key.to_sym] = JSON.parse(value)
         end
-      end
+      end; alias to_hash to_h
 
       def each(&block)
         to_h.each(&block)

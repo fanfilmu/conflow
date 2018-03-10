@@ -18,7 +18,7 @@ module Conflow
 
       def to_s
         command :get, [key]
-      end
+      end; alias to_str to_s
     end
   end
 end

@@ -30,7 +30,7 @@ module Conflow
 
       def to_a
         command :lrange, [key, 0, -1]
-      end
+      end; alias to_ary to_a
 
       def pop
         command :rpop, [key]
