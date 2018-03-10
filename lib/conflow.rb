@@ -17,6 +17,9 @@ require "conflow/redis/identifier"
 
 require "conflow/redis/script"
 
+require "conflow/job"
+require "conflow/flow"
+
 module Conflow
   class << self
     attr_reader :redis
