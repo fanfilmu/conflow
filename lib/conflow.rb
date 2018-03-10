@@ -16,6 +16,7 @@ require "conflow/redis/model"
 require "conflow/redis/identifier"
 
 require "conflow/redis/script"
+require "conflow/redis/add_job_script"
 
 require "conflow/job"
 require "conflow/flow"
