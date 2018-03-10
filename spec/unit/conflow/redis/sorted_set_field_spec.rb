@@ -28,6 +28,11 @@ RSpec.describe Conflow::Redis::SortedSetField, redis: true do
     it { is_expected.to eq 3 }
   end
 
+  describe "#delete" do
+    subject { filled_sorted_set.delete("tie") }
+    it_behaves_like "action changing sorted set", "last" => 10, "best" => 0
+  end
+
   describe "#first" do
     subject { filled_sorted_set.first(2) }
     it { is_expected.to eq %w[best tie] }

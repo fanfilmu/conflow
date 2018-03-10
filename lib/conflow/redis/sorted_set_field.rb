@@ -21,14 +21,18 @@ module Conflow
         command :zcard, [key]
       end
 
-      def first(n = 1)
-        result = command :zrange, [key, 0, n - 1]
-        n == 1 ? result[0] : result
+      def delete(value)
+        command :zrem, [key, value]
       end
 
-      def last(n = 1)
-        result = command :zrevrange, [key, 0, n - 1]
-        n == 1 ? result[0] : result
+      def first(num = 1)
+        result = command :zrange, [key, 0, num - 1]
+        num == 1 ? result[0] : result
+      end
+
+      def last(num = 1)
+        result = command :zrevrange, [key, 0, num - 1]
+        num == 1 ? result[0] : result
       end
 
       def to_h
