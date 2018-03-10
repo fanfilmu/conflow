@@ -9,6 +9,7 @@ require "bundler/setup"
 require "connection_pool"
 require "conflow"
 
+require "support/fixtures_helper"
 require "support/redis_helper"
 
 RSpec.configure do |config|
@@ -23,4 +24,5 @@ RSpec.configure do |config|
   end
 
   config.include RedisHelper, redis: true
+  config.include FixturesHelper, fixtures: true
 end
