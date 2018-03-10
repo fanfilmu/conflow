@@ -7,11 +7,12 @@ module Conflow
       include Enumerable
 
       def [](field)
-        command :hget, [key, field]
+        value = command(:hget, [key, field])
+        value ? JSON.parse(value) : value
       end
 
       def []=(field, value)
-        command :hset, [key, field, value]
+        command :hset, [key, field, JSON.dump(value)]
       end
 
       def merge(hash)
@@ -23,6 +24,8 @@ module Conflow
       end
 
       def overwrite(new_hash)
+        new_hash.transform_values! { |value| value && JSON.dump(value) }
+
         redis.with do |conn|
           conn.pipelined do
             conn.del(key)
@@ -40,7 +43,7 @@ module Conflow
       end
 
       def to_h
-        command :hgetall, [key]
+        command(:hgetall, [key]).transform_values { |value| value && JSON.parse(value) }
       end
 
       def each(&block)

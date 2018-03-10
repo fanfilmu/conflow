@@ -26,12 +26,12 @@ RSpec.describe Conflow::Redis::HashField, redis: true do
 
   describe "#merge" do
     subject { filled_hash.merge(c: 8, d: 4) }
-    it_behaves_like "action changing hash", "a" => "1", "b" => "2", "c" => "8", "d" => "4"
+    it_behaves_like "action changing hash", "a" => 1, "b" => 2, "c" => 8, "d" => 4
   end
 
   describe "#delete" do
     subject { filled_hash.delete(:a, :b) }
-    it_behaves_like "action changing hash", "c" => "4"
+    it_behaves_like "action changing hash", "c" => 4
   end
 
   describe "#overwrite" do
@@ -51,11 +51,11 @@ RSpec.describe Conflow::Redis::HashField, redis: true do
 
   describe "#each" do
     subject { filled_hash.each.to_a }
-    it { is_expected.to eq [%w[a 1], %w[b 2], %w[c 4]] }
+    it { is_expected.to eq [["a", 1], ["b", 2], ["c", 4]] }
   end
 
   describe "#==" do
-    it { expect(filled_hash == { "a" => "1", "b" => "2", "c" => "4" }).to eq true }
+    it { expect(filled_hash == { "a" => 1, "b" => 2, "c" => 4 }).to eq true }
     it { expect(filled_hash == described_class.new("test.hash")).to eq true }
     it { expect(hash_field == described_class.new("other")).to eq true }
     it { expect(filled_hash == described_class.new("other")).to eq false }
@@ -64,6 +64,6 @@ RSpec.describe Conflow::Redis::HashField, redis: true do
 
   describe "#to_s" do
     subject { filled_hash.to_s }
-    it { is_expected.to eq %({"a"=>"1", "b"=>"2", "c"=>"4"}) }
+    it { is_expected.to eq %({"a"=>1, "b"=>2, "c"=>4}) }
   end
 end

@@ -3,6 +3,7 @@
 require "conflow/version"
 
 require "digest"
+require "json"
 require "redis"
 
 require "conflow/redis/connection_wrapper"

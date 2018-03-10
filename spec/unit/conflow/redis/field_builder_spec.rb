@@ -19,7 +19,7 @@ RSpec.describe Conflow::Redis::FieldBuilder, redis: true do
     describe "setter" do
       subject { instance.params = { test: :param, success: true } }
 
-      it { expect { subject }.to change { instance.params.to_h }.to("test" => "param", "success" => "true") }
+      it { expect { subject }.to change { instance.params.to_h }.to("test" => "param", "success" => true) }
     end
   end
 end
