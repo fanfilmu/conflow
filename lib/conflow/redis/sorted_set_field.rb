@@ -26,13 +26,16 @@ module Conflow
       end
 
       def where(score:)
-        score =
-          case score
-          when Hash then { min: "-inf", max: "+inf" }.merge(score)
-          when Numeric then { min: score, max: score }
-          end
+        command :zrangebyscore, [key, *prepare_score_bounds(score)]
+      end
 
-        command :zrangebyscore, [key, score[:min], score[:max]]
+      def delete_if(score:)
+        score_bounds = prepare_score_bounds(score)
+
+        transaction do |conn|
+          conn.zrangebyscore key, *score_bounds
+          conn.zremrangebyscore key, *score_bounds
+        end[0]
       end
 
       def first(num = 1)
@@ -66,6 +69,13 @@ module Conflow
         hash.each_with_object(ary).with_index do |((value, score), result), index|
           result[index * 2] = score
           result[index * 2 + 1] = value
+        end
+      end
+
+      def prepare_score_bounds(score)
+        case score
+        when Hash    then { min: "-inf", max: "+inf" }.merge(score).values
+        when Numeric then [score, score]
         end
       end
     end
