@@ -14,6 +14,12 @@ module Conflow
       module ClassMethods
         attr_writer :counter_key, :key_template
 
+        def inherited(base)
+          base.instance_variable_set("@counter_key", counter_key)
+          base.instance_variable_set("@key_template", key_template)
+          super
+        end
+
         def counter_key
           @counter_key ||= [*name.downcase.split("::"), :idcnt].join(":")
         end
