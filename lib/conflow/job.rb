@@ -7,8 +7,9 @@ module Conflow
     include Conflow::Redis::Identifier
 
     has_many :successors, Conflow::Job
-    field :params, :hash
-    field :status, :value # 0 - pending, 1 - finished
+    field :params,     :hash
+    field :class_name, :value
+    field :status,     :value # 0 - pending, 1 - finished
 
     def initialize(*)
       super

@@ -6,6 +6,7 @@ module Conflow
   class Flow < Conflow::Redis::Field
     include Conflow::Redis::Model
     include Conflow::Redis::Identifier
+    include JobHandler
 
     has_many :jobs, Conflow::Job
     field :indegree, :sorted_set

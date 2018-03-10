@@ -7,6 +7,7 @@ RSpec.describe Conflow::Flow, redis: true do
 
   it { is_expected.to be_a_kind_of(Conflow::Redis::Model) }
   it { is_expected.to be_a_kind_of(Conflow::Redis::Identifier) }
+  it { is_expected.to be_a_kind_of(Conflow::Flow::JobHandler) }
 
   context "fields" do
     it { expect(subject.jobs).to eq [Conflow::Job.new(5)] }
