@@ -33,6 +33,30 @@ RSpec.describe Conflow::Redis::SortedSetField, redis: true do
     it_behaves_like "action changing sorted set", "last" => 10, "best" => 0
   end
 
+  describe "#where" do
+    subject { filled_sorted_set.where(score: score) }
+
+    context "when number given" do
+      let(:score) { 0 }
+      it { is_expected.to eq %w[best tie] }
+    end
+
+    context "when min given" do
+      let(:score) { { min: 3 } }
+      it { is_expected.to eq ["last"] }
+    end
+
+    context "when max given" do
+      let(:score) { { max: 3 } }
+      it { is_expected.to eq %w[best tie] }
+    end
+
+    context "when min and max given" do
+      let(:score) { { min: "(0", max: 3 } }
+      it { is_expected.to eq [] }
+    end
+  end
+
   describe "#first" do
     subject { filled_sorted_set.first(2) }
     it { is_expected.to eq %w[best tie] }

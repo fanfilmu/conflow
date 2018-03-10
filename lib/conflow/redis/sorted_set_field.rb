@@ -25,6 +25,16 @@ module Conflow
         command :zrem, [key, value]
       end
 
+      def where(score:)
+        score =
+          case score
+          when Hash then { min: "-inf", max: "+inf" }.merge(score)
+          when Numeric then { min: score, max: score }
+          end
+
+        command :zrangebyscore, [key, score[:min], score[:max]]
+      end
+
       def first(num = 1)
         result = command :zrange, [key, 0, num - 1]
         num == 1 ? result[0] : result
