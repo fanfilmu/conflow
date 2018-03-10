@@ -22,8 +22,6 @@ require "conflow/flow"
 
 module Conflow
   class << self
-    attr_reader :redis
-
     def redis=(conn)
       @redis =
         if defined?(ConnectionPool) && conn.is_a?(ConnectionPool)
@@ -31,6 +29,11 @@ module Conflow
         else
           Conflow::Redis::ConnectionWrapper.new(conn)
         end
+    end
+
+    def redis
+      self.redis = ::Redis.current unless defined?(@redis)
+      @redis
     end
   end
 end

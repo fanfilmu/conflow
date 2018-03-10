@@ -3,8 +3,6 @@
 module RedisHelper
   extend RSpec::SharedContext
 
-  let(:redis) { Redis.new }
-
-  before { Conflow.redis = redis }
+  let(:redis) { Conflow.redis.with(&:itself) }
   after { redis.flushdb }
 end

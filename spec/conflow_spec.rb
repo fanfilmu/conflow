@@ -24,4 +24,11 @@ RSpec.describe Conflow do
       end
     end
   end
+
+  describe ".redis" do
+    before  { Conflow.remove_instance_variable("@redis") if Conflow.instance_variable_get("@redis") }
+    subject { Conflow.redis.with(&:itself) }
+
+    it { is_expected.to eq Redis.current }
+  end
 end
