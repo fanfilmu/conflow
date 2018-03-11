@@ -17,6 +17,8 @@ RSpec.describe Conflow::Redis::CompleteJobScript, redis: true do
     ].each do |(job, dependencies)|
       Conflow::Redis::AddJobScript.call(flow, job, after: dependencies || [])
     end
+
+    flow.queued_jobs.add(job.id, other_job.id)
   end
 
   describe ".call" do
@@ -36,6 +38,10 @@ RSpec.describe Conflow::Redis::CompleteJobScript, redis: true do
 
     it "doesn't change indegree of other job" do
       expect { subject }.to_not(change { flow.indegree[other_job.id] })
+    end
+
+    it "removes job from queued_jobs list" do
+      expect { subject }.to change { flow.queued_jobs.to_a }.from([job.id.to_s, other_job.id.to_s]).to [other_job.id.to_s]
     end
   end
 end

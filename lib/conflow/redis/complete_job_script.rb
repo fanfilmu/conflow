@@ -6,15 +6,18 @@ module Conflow
     class CompleteJobScript < Script
       self.script = <<~LUA
         local indegree_set = KEYS[1]
-        local job_id = KEYS[2]
+        local queued_jobs = KEYS[2]
+        local job_key = KEYS[3]
+        local job_id = ARGV[1]
 
-        local successors = redis.call('lrange', job_id .. ':successor_ids', 0, -1)
+        local successors = redis.call('lrange', job_key .. ':successor_ids', 0, -1)
 
         for i=1,#successors do
           redis.call('zincrby', indegree_set, -1, successors[i])
         end
 
-        return redis.call('set', job_id .. ':status', '1')
+        redis.call('srem', queued_jobs, job_id)
+        return redis.call('set', job_key .. ':status', '1')
       LUA
 
       class << self
@@ -24,7 +27,7 @@ module Conflow
         # @param flow [Conflow::Flow] Flow to which job belongs to
         # @param job [Conflow::Job] Job to be marked as completed
         def call(flow, job)
-          super([flow.indegree.key, job.key])
+          super([flow.indegree.key, flow.queued_jobs.key, job.key], [job.id])
         end
       end
     end

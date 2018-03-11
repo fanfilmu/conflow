@@ -8,21 +8,23 @@ RSpec.describe Conflow::Redis::Model, redis: true do
       field :params,  :hash
       field :records, :array
       field :status,  :value
-      field :set,     :sorted_set
+      field :zset,    :sorted_set
+      field :sset,    :set
     end
   end
 
   let(:instance) { test_class.new("test_key") }
 
   it "defines proper methods" do
-    expect(instance).to respond_to(:params, :params=, :records, :records=, :status, :status=)
+    expect(instance).to respond_to(:params, :params=, :records, :records=, :status, :status=, :zset, :zset=, :sset, :sset=)
   end
 
   it "defines proper getters" do
     expect(instance.params).to  be_a_kind_of(Conflow::Redis::HashField)
     expect(instance.records).to be_a_kind_of(Conflow::Redis::ArrayField)
     expect(instance.status).to  be_a_kind_of(Conflow::Redis::ValueField)
-    expect(instance.set).to     be_a_kind_of(Conflow::Redis::SortedSetField)
+    expect(instance.zset).to    be_a_kind_of(Conflow::Redis::SortedSetField)
+    expect(instance.sset).to    be_a_kind_of(Conflow::Redis::SetField)
   end
 
   describe "#==" do
@@ -56,8 +58,10 @@ RSpec.describe Conflow::Redis::Model, redis: true do
       end
     end
 
+    let(:expected_error) { "Unknown type: linked_list. Should be one of: [:hash, :array, :value, :sorted_set, :set]" }
+
     it "raises error" do
-      expect { test_class }.to raise_error(ArgumentError, "Unknown type: linked_list. Should be one of: [:hash, :array]")
+      expect { test_class }.to raise_error(ArgumentError, expected_error)
     end
   end
 

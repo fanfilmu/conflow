@@ -18,18 +18,20 @@ module Conflow
           after = prepare_dependencies(after)
 
           call_script(Conflow::Redis::AddJobScript, job, after: after)
+          queue_available_jobs
         end
       end
 
       def finish(job, result = nil)
         send(job.hook.to_s, result) unless job.hook.nil?
         call_script(Conflow::Redis::CompleteJobScript, job)
+        queue_available_jobs
       end
 
       private
 
       def queue_available_jobs
-        indegree.delete_if(score: 0).each do |job_id|
+        call_script(Conflow::Redis::QueueJobsScript)&.each do |job_id|
           queue Conflow::Job.new(job_id)
         end
       end
@@ -44,7 +46,6 @@ module Conflow
 
       def call_script(script, *args)
         script.call(self, *args)
-        queue_available_jobs
       end
 
       def prepare_dependencies(dependencies)

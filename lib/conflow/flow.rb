@@ -16,6 +16,10 @@ module Conflow
   #   are fulfilled.
   #   @return [Conflow::Redis::SortedSetField] Set of jobs to be performed
   #
+  # @!attribute [r] queued_jobs
+  #   Set of jobs that are currently queued (and not yet finished).
+  #   @return [Conflow::Redis::SetField] Set of queued jobs
+  #
   # @!method queue(job)
   #   @abstract
   #   Queues job to be performed. Both id of the flow and id of the job must be preserved
@@ -35,7 +39,8 @@ module Conflow
     include JobHandler
 
     has_many :jobs, Conflow::Job
-    field :indegree, :sorted_set
+    field :queued_jobs, :set
+    field :indegree,    :sorted_set
 
     # Create new flow with given parameters
     # @example Simple configurable flow

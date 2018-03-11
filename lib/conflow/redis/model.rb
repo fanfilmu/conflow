@@ -18,14 +18,24 @@ module Conflow
 
       # Methods for defining fields on model
       module ClassMethods
+        # Maps types (option for {Conflow::Redis::Model::ClassMethods#field}) to specific type field
+        ALLOWED_TYPES = {
+          hash:       Conflow::Redis::HashField,
+          array:      Conflow::Redis::ArrayField,
+          value:      Conflow::Redis::ValueField,
+          sorted_set: Conflow::Redis::SortedSetField,
+          set:        Conflow::Redis::SetField
+        }.freeze
+
         # Defines Redis field accessors.
         # @param name [Symbol] name of the field
-        # @param type [:hash, :array, :value, :sorted_set] type of the new field
+        # @param type [:hash, :array, :value, :sorted_set, :set] type of the new field
         #
         # @see Conflow::Redis::HashField
         # @see Conflow::Redis::ArrayField
         # @see Conflow::Redis::ValueField
         # @see Conflow::Redis::SortedSetField
+        # @see Conflow::Redis::SetField
         # @example
         #   model_class.field :data, :hash
         #   instance = model_class.new
@@ -33,13 +43,10 @@ module Conflow
         #   instance.hash = { something: "else"}
         #   instance.hash["something"] #=> "else"
         def field(name, type)
-          case type
-          when :hash       then FieldBuilder.new(name, Conflow::Redis::HashField).call(self)
-          when :array      then FieldBuilder.new(name, Conflow::Redis::ArrayField).call(self)
-          when :value      then FieldBuilder.new(name, Conflow::Redis::ValueField).call(self)
-          when :sorted_set then FieldBuilder.new(name, Conflow::Redis::SortedSetField).call(self)
-          else raise ArgumentError, "Unknown type: #{type}. Should be one of: [:hash, :array]"
-          end
+          type_class = ALLOWED_TYPES[type]
+          raise ArgumentError, "Unknown type: #{type}. Should be one of: #{ALLOWED_TYPES.keys.inspect}" unless type_class
+
+          FieldBuilder.new(name, type_class).call(self)
         end
 
         # Convienience method for defining relation-like accessor.

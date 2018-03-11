@@ -3,10 +3,11 @@
 RSpec.describe Conflow::Flow::JobHandler, redis: true do
   let(:dummy)    { Class.new.tap { |klass| klass.include(described_class) } }
   let(:instance) { dummy.new }
-  let(:indegree) { instance_double(Conflow::Redis::SortedSetField, delete_if: ["10"]) }
+  let(:indegree) { instance_double(Conflow::Redis::SortedSetField) }
 
   before { allow(instance).to receive(:indegree).and_return indegree }
   before { allow(Conflow::Redis::AddJobScript).to receive(:call) }
+  before { allow(Conflow::Redis::QueueJobsScript).to receive(:call).and_return(["10"]) }
   before { allow(instance).to receive(:queue) }
   after  { subject }
 
