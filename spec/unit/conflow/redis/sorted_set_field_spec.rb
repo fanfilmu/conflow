@@ -33,65 +33,6 @@ RSpec.describe Conflow::Redis::SortedSetField, redis: true do
     it_behaves_like "action changing sorted set", "last" => 10, "best" => 0
   end
 
-  describe "#where" do
-    subject { filled_sorted_set.where(score: score) }
-
-    context "when number given" do
-      let(:score) { 0 }
-      it { is_expected.to eq %w[best tie] }
-    end
-
-    context "when min given" do
-      let(:score) { { min: 3 } }
-      it { is_expected.to eq ["last"] }
-    end
-
-    context "when max given" do
-      let(:score) { { max: 3 } }
-      it { is_expected.to eq %w[best tie] }
-    end
-
-    context "when min and max given" do
-      let(:score) { { min: "(0", max: 3 } }
-      it { is_expected.to eq [] }
-    end
-  end
-
-  describe "#delete_if" do
-    subject { filled_sorted_set.delete_if(score: score) }
-
-    context "when number given" do
-      let(:score) { 0 }
-      it { is_expected.to eq %w[best tie] }
-      it_behaves_like "action changing sorted set", "last" => 10
-    end
-
-    context "when min given" do
-      let(:score) { { min: 3 } }
-      it { is_expected.to eq ["last"] }
-      it_behaves_like "action changing sorted set", "best" => 0, "tie" => 0
-    end
-
-    context "when max given" do
-      let(:score) { { max: 3 } }
-      it { is_expected.to eq %w[best tie] }
-      it_behaves_like "action changing sorted set", "last" => 10
-    end
-
-    context "when min and max given" do
-      let(:score) { { min: "(0", max: 3 } }
-      it { is_expected.to eq [] }
-      it { expect { subject }.to_not(change { filled_sorted_set.to_h }) }
-    end
-
-    context "when transaction fails" do
-      before { allow(redis).to receive(:multi).and_return(nil) }
-      let(:score) { 10 }
-
-      it { expect { subject }.to raise_error(Redis::CommandError, "Transaction failed 5 times") }
-    end
-  end
-
   describe "#first" do
     subject { filled_sorted_set.first(2) }
     it { is_expected.to eq %w[best tie] }

@@ -55,36 +55,6 @@ module Conflow
         command :zrem, [key, value]
       end
 
-      # Return elements with given score
-      # @param score [Numeric, Hash]
-      #   - when Numeric, only elements with that exact score will be returned
-      #   - when Hash, elements within min..max range will be returned. See {https://redis.io/commands/zrange Redis docs}
-      # @option score [String, Numeric] :min minimal score
-      # @option score [String, Numeric] :max maximal score
-      # @return [Array<String>] Elements with given score
-      #
-      # @example with specific score
-      #   field.where(score: 2) #=> ["first", "tie"]
-      # @example with only min set
-      #   field.where(score: { min: 3 }) #=> ["last", "second"]
-      # @example with both min and max set
-      #   field.where(score: { min: 3, max: "(10" }) #=> ["last"]
-      def where(score:)
-        command :zrangebyscore, [key, *prepare_score_bounds(score)]
-      end
-
-      # Removes elements of the set with given score and returns them.
-      # See {where} for details on how to choose score.
-      # @return [Array<String>] Elements with given score
-      def delete_if(score:)
-        score_bounds = prepare_score_bounds(score)
-
-        transaction do |conn|
-          conn.zrangebyscore key, *score_bounds
-          conn.zremrangebyscore key, *score_bounds
-        end[0]
-      end
-
       # Returns first *n* elements of the sorted set
       # @param num [Integer] amount of elements to be returned. Defaults to 1.
       # @return [String, Array<String>] first *num* elements from the set
@@ -127,13 +97,6 @@ module Conflow
         hash.each_with_object(ary).with_index do |((value, score), result), index|
           result[index * 2] = score
           result[index * 2 + 1] = value
-        end
-      end
-
-      def prepare_score_bounds(score)
-        case score
-        when Hash    then { min: "-inf", max: "+inf" }.merge(score).values
-        when Numeric then [score, score]
         end
       end
     end
