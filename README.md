@@ -24,7 +24,108 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+### Configuration
+
+#### Redis connection
+
+To configure Redis connection, set `Conflow.redis` attribute to a `Redis` or `ConnectionPool` instance.
+
+```ruby
+Conflow.redis = Redis.new(host: "127.0.0.1", port: 6379)
+# or
+require "connection_pool"
+Conflow.redis = ConnectionPool.new(size: 5, timeout: 5) { Redis.new(host: "127.0.0.1", port: 6379) }
+```
+
+#### Redis script caching
+
+By default, gem caches it's scripts in Redis server. To disable this behaviour, set `cache_scripts` to false:
+
+```ruby
+Conflow::Redis::Scripts.cache_scripts = false
+```
+
+### Defining flows
+
+In order to define a flow, first you need to supply a way to enqueue jobs.
+
+`Conflow` does not make any assumptions about this process - you can enqueue Sidekiq job, send a RabbitMQ event or send an email to a Very Important Person with flow ID and job ID.
+
+```ruby
+class ApplicationFlow < Conflow::Flow
+  def queue(job)
+    Sidekiq::Client.enqueue(FlowWorkerJob, id, job.id)
+  end
+end
+```
+
+`id` (`Conflow::Flow#id`) and `job.id` (`Conflow::Job#id`) is enough to identify job and execute it properly. Make sure that you send both of these values and it will be OK.
+
+You can define actual jobs to be performed using `#configure` method:
+
+```ruby
+class MyFlow < ApplicationFlow
+  def configure(id:, strict:)
+    run UpsertJob, params: { id: id }
+    run CheckerJob, params: { id: id }, after: UpsertJob if strict
+  end
+end
+```
+
+To create flow, use `.create` method:
+
+```ruby
+MyFlow.create(id: 320, strict: false)
+MyFlow.create(id: 15, strict: true)
+```
+
+#### Dependencies
+
+You can use `after` option to define dependencies. `after` accepts a `Class`, `Conflow::Job` instance or `Integer` with id of the job - or an array with any combination of these.
+
+```ruby
+class MyFlow < ApplicationFlow
+  def configure
+    first = run FirstJob
+    independent = run IndependentJob
+
+    run SecondJob, after: [FirstJob, independent]
+    run FinishUp, after: SecondJob
+  end
+end
+```
+
+![Created graph](https://camo.githubusercontent.com/0b1ee59994323900906264ea50fbc9169e4d21dd/68747470733a2f2f63686172742e676f6f676c65617069732e636f6d2f63686172743f63686c3d646967726170682b472b2537422530442530412b2b72616e6b6469722533444c522533422530442530412b2b25323253544152542532322b2d2533452b25323246697273744a6f622532322530442530412b2b25323253544152542532322b2d2533452b253232496e646570656e64656e744a6f622532322530442530412b2b25323246697273744a6f622532322b2d2533452b2532325365636f6e644a6f622532322530442530412b2b253232496e646570656e64656e744a6f622532322b2d2533452b2532325365636f6e644a6f622532322530442530412b2b2532325365636f6e644a6f622532322b2d2533452b25323246696e69736855702532322530442530412b2b25323246696e69736855702532322b2d2533452b253232454e442532322530442530412537442530442530412b266368743d6776)
+
+### Performing jobs
+
+To perform job, use `Conflow::Worker` mixin. It adds `#perform` method, which accepts two arguments: IDs of the flow and the job.
+
+Simple `Conflow::Worker` that is also `Sidekiq::Worker`:
+
+```ruby
+class FlowWorkerJob
+  include Conflow::Worker
+  include Sidekiq::Worker # order is important!
+
+  def perform(flow_id, job_id)
+    super do |worker_class, params|
+      worker_class.new(params).call
+    end
+  end
+end
+```
+
+For previously defined flow, executing this flow would result in:
+
+```ruby
+FirstJob.new({}).call
+IndependentJob.new({}).call # order of the first two is not defined
+
+SecondJob.new({}).call
+
+FinishUp.new({}).call
+```
 
 ## Development
 
