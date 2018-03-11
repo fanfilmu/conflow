@@ -15,4 +15,15 @@ RSpec.describe Conflow::Flow, redis: true do
     it { expect(subject.job_ids).to eq ["5"] }
     it { expect(subject.indegree).to be_a_kind_of(Conflow::Redis::SortedSetField) }
   end
+
+  describe ".create" do
+    let(:flow) { instance_double(described_class) }
+
+    before { allow(described_class).to receive(:new).and_return(flow) }
+    after  { described_class.create("An arg") }
+
+    it "creates and configures job" do
+      expect(flow).to receive(:configure).with("An arg")
+    end
+  end
 end

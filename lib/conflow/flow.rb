@@ -36,5 +36,25 @@ module Conflow
 
     has_many :jobs, Conflow::Job
     field :indegree, :sorted_set
+
+    # Create new flow with given parameters
+    # @example Simple configurable flow
+    #   class MyFlow < Conflow::Flow
+    #     def configure(id:, strict:)
+    #       run UpsertJob, params: { id: id }
+    #       run CheckerJob, params: { id: id } if strict
+    #     end
+    #   end
+    #
+    #   MyFlow.create(id: 320, strict: false)
+    #   MyFlow.create(id: 15, strict: true)
+    def self.create(*args)
+      new.tap { |flow| flow.configure(*args) }
+    end
+
+    # @abstract
+    # Override this method in order to contain your flow definition inside the class.
+    # This method will be called if flow is created using {.create} method.
+    def configure(*args); end
   end
 end
