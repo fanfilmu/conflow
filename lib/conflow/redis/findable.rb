@@ -17,7 +17,7 @@ module Conflow
       # Adds .find method which accepts ID and returns model of proper (sub)type
       module ClassMethods
         def find(id)
-          class_name = Conflow.redis.with { |conn| conn.get(format(key_template + ":type", id: id)) }
+          class_name = ValueField.new(format(key_template + ":type", id: id)).value
           raise ::Redis::CommandError, "#{name} with ID #{id} doesn't exist" unless class_name
 
           Object.const_get(class_name).new(id)

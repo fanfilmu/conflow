@@ -5,7 +5,7 @@ RSpec.describe Conflow::Redis::ValueField, redis: true do
   let(:filled_value) { value_field.tap { |v| v.overwrite(4.5) } }
 
   shared_examples "action changing value" do |expected_value|
-    it { expect { subject }.to change { value_field.to_s }.to(expected_value) }
+    it { expect { subject }.to change { value_field.value }.to(expected_value) }
   end
 
   describe "#overwrite" do
@@ -16,12 +16,12 @@ RSpec.describe Conflow::Redis::ValueField, redis: true do
   describe "#default" do
     context "when value is empty" do
       subject { value_field.default(10) }
-      it_behaves_like "action changing value", "10"
+      it_behaves_like "action changing value", 10
     end
 
     context "when value is not empty" do
       subject { filled_value.default(10) }
-      it { expect { subject }.to_not(change { filled_value.to_s }) }
+      it { expect { subject }.to_not(change { filled_value.value }) }
     end
   end
 

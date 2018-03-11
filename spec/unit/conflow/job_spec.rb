@@ -17,12 +17,12 @@ RSpec.describe Conflow::Job, redis: true do
   end
 
   context "default values" do
-    it { expect(subject.status).to eq "0" }
+    it { expect(subject.status).to eq 0 }
 
     context "when value was overriden" do
       before { described_class.new(1).tap { |job| job.status = 1 } }
 
-      it { expect(subject.status).to eq "1" }
+      it { expect(subject.status).to eq 1 }
     end
   end
 
