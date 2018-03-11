@@ -35,25 +35,16 @@ RSpec.describe Conflow::Redis::AddJobScript, redis: true do
     end
 
     context "with one dependency" do
-      context "passed as list of values" do
-        let(:previous_job) { Conflow::Job.new }
-        let(:dependencies) { [previous_job.id] }
+      let(:previous_job) { Conflow::Job.new }
+      let(:dependencies) { [previous_job] }
 
-        it_behaves_like "method adding job"
-      end
-
-      context "passed as object" do
-        let(:previous_job) { Conflow::Job.new }
-        let(:dependencies) { previous_job }
-
-        it_behaves_like "method adding job"
-      end
+      it_behaves_like "method adding job"
     end
 
     context "with multiple dependencies" do
       let(:previous_job)  { Conflow::Job.new }
       let(:completed_job) { Conflow::Job.new.tap { |j| j.status = 1 } }
-      let(:dependencies)  { [previous_job.id, completed_job] }
+      let(:dependencies)  { [previous_job, completed_job] }
 
       it_behaves_like "method adding job"
     end

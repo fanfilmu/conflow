@@ -12,7 +12,7 @@ RSpec.describe Conflow::Redis::CompleteJobScript, redis: true do
     [
       [job],
       [other_job],
-      [first_dependency, job],
+      [first_dependency, [job]],
       [second_dependency, [job, other_job]]
     ].each do |(job, dependencies)|
       Conflow::Redis::AddJobScript.call(flow, job, after: dependencies || [])

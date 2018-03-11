@@ -25,25 +25,7 @@ module Conflow
 
       class << self
         def call(flow, job, after: [])
-          dependencies = prepare_jobs(after)
-
-          super([flow.job_ids.key, flow.indegree.key, *dependencies.map(&:key)], [job.id])
-        end
-
-        private
-
-        def prepare_jobs(dependencies)
-          case dependencies
-          when Enumerable then dependencies.map(&method(:build_job))
-          else [build_job(dependencies)]
-          end
-        end
-
-        def build_job(dependency)
-          case dependency
-          when Conflow::Job    then dependency
-          when String, Numeric then Conflow::Job.new(dependency)
-          end
+          super([flow.job_ids.key, flow.indegree.key, *after.map(&:key)], [job.id])
         end
       end
     end

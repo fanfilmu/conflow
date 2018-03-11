@@ -4,7 +4,7 @@ module FixturesHelper
   extend RSpec::SharedContext
 
   around do |example|
-    fixtures = %i[Operation ThreadBasedFlow Worker]
+    fixtures = %i[Operation SquareRoot ThreadBasedFlow Worker]
     fixtures.each { |fixture| Object.const_set(fixture, FixturesHelper.const_get(fixture)) }
 
     redis.set("test_key", 0)
@@ -55,6 +55,24 @@ module FixturesHelper
     end
   end
 
+  class SquareRoot < Operation
+    attr_reader :key, :new_value
+
+    def initialize
+      super(operator: nil, number: nil)
+    end
+
+    private
+
+    def perform_operation(conn)
+      conn.watch(key) do
+        value = conn.get key
+        @new_value = Math.sqrt(value.to_i)
+        conn.multi { |multi| multi.set(key, new_value) }
+      end
+    end
+  end
+
   class ThreadBasedFlow < Conflow::Flow
     def queue(job)
       Worker.queue << [id, job.id]
@@ -74,7 +92,11 @@ module FixturesHelper
 
     def call
       perform(*self.class.queue.pop) do |worker_type, parameters|
-        worker_type.new(parameters).call
+        if parameters.any?
+          worker_type.new(parameters).call
+        else
+          worker_type.new.call
+        end
       end
     end
   end

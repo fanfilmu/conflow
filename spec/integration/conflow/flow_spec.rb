@@ -47,4 +47,13 @@ RSpec.describe Conflow::Flow, redis: true, fixtures: true do
       subject
     end
   end
+
+  context "for flow with definitions with class names" do
+    before do
+      flow.run Operation, params: { operator: :+, number: 400 }
+      flow.run SquareRoot, after: Operation
+    end
+
+    it { expect { subject }.to change { test_value }.to(20) }
+  end
 end
