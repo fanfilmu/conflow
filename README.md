@@ -1,6 +1,6 @@
 # Conflow
 
-[![Build Status](https://travis-ci.org/fanfilmu/conflow.svg?branch=master)](https://travis-ci.org/fanfilmu/conflow) [![Maintainability](https://api.codeclimate.com/v1/badges/80b66a285ca1803f391a/maintainability)](https://codeclimate.com/github/fanfilmu/conflow/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/80b66a285ca1803f391a/test_coverage)](https://codeclimate.com/github/fanfilmu/conflow/test_coverage)
+[![Gem Version](https://badge.fury.io/rb/conflow.svg)](https://badge.fury.io/rb/conflow) [![Build Status](https://travis-ci.org/fanfilmu/conflow.svg?branch=master)](https://travis-ci.org/fanfilmu/conflow) [![Maintainability](https://api.codeclimate.com/v1/badges/80b66a285ca1803f391a/maintainability)](https://codeclimate.com/github/fanfilmu/conflow/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/80b66a285ca1803f391a/test_coverage)](https://codeclimate.com/github/fanfilmu/conflow/test_coverage)
 
 Conflow allows defining comlicated workflows with dependencies. Inspired by [Gush](https://github.com/chaps-io/gush) (the idea) and [Redis::Objects](https://github.com/nateware/redis-objects) (the implementation) it focuses solely on dependency logic, while leaving queueing jobs and executing them entirely in hands of the programmer.
 
