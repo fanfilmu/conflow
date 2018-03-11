@@ -2,7 +2,7 @@
 
 RSpec.describe Conflow::Redis::Model, redis: true do
   let(:test_class) do
-    Struct.new(:key) do
+    Class.new(Conflow::Redis::Field) do
       include Conflow::Redis::Model
 
       field :params,  :hash
@@ -10,6 +10,25 @@ RSpec.describe Conflow::Redis::Model, redis: true do
       field :status,  :value
       field :zset,    :sorted_set
       field :sset,    :set
+    end
+  end
+
+  let(:related_model) do
+    Class.new(Conflow::Redis::Field) do
+      include Conflow::Redis::Model
+      alias_method :id, :key
+      field :name, :value
+    end
+  end
+
+  let(:model_with_relation) do
+    m = related_model
+
+    Class.new(Conflow::Redis::Field) do
+      include Conflow::Redis::Model
+      alias_method :id, :key
+      has_many :workers, m
+      field :status, :value
     end
   end
 
@@ -66,23 +85,7 @@ RSpec.describe Conflow::Redis::Model, redis: true do
   end
 
   describe ".has_many" do
-    let(:related_model) do
-      Struct.new(:key) do
-        include Conflow::Redis::Model
-        alias_method :id, :key
-        field :name, :value
-      end
-    end
-
-    let(:test_class) do
-      m = related_model
-
-      Struct.new(:key) do
-        include Conflow::Redis::Model
-        alias_method :id, :key
-        has_many :workers, m
-      end
-    end
+    let(:test_class) { model_with_relation }
 
     it "defines #worker_ids array" do
       expect(instance.worker_ids).to eq []
@@ -99,5 +102,22 @@ RSpec.describe Conflow::Redis::Model, redis: true do
         expect(instance.workers).to all(satisfy { |worker| worker.name == "Heavy" })
       end
     end
+  end
+
+  describe "#destroy!" do
+    subject { instance.destroy! }
+
+    let(:test_class) { model_with_relation }
+    let(:related_instance) { related_model.new("other_key").tap { |model| model.name = "Hardworking" } }
+
+    before do
+      instance.status = "Superb"
+      instance.worker_ids << related_instance.key
+    end
+
+    let(:expected_keys) { %w[test_key:status test_key:worker_ids other_key:name] }
+
+    it { is_expected.to match_array expected_keys }
+    it { expect { subject }.to change { expected_keys.map { |key| redis.exists key } }.to all(eq(false)) }
   end
 end

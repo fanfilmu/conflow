@@ -16,6 +16,23 @@ module Conflow
         other.is_a?(Model) ? key == other.key : super
       end
 
+      # Removes this and all related models.
+      # @param execute [Boolean] if false, only returns keys that would be removed
+      def destroy!(execute: true)
+        keys = self.class.fields.map { |name| send(name).key }
+        related_keys = self.class.relations.map(&method(:collect_relation_keys))
+
+        (keys + related_keys).flatten.tap do |key_list|
+          command :del, key_list if execute
+        end
+      end
+
+      private
+
+      def collect_relation_keys(relation)
+        send(relation).map { |object| object.destroy!(execute: false) }
+      end
+
       # Methods for defining fields on model
       module ClassMethods
         # Maps types (option for {Conflow::Redis::Model::ClassMethods#field}) to specific type field
@@ -46,6 +63,7 @@ module Conflow
           type_class = ALLOWED_TYPES[type]
           raise ArgumentError, "Unknown type: #{type}. Should be one of: #{ALLOWED_TYPES.keys.inspect}" unless type_class
 
+          fields << name
           FieldBuilder.new(name, type_class).call(self)
         end
 
@@ -54,7 +72,18 @@ module Conflow
         #   has_many :jobs, Conflow::Job # defines #job_ids and #jobs
         def has_many(name, klass, field_name: "#{name.to_s.chop}_ids")
           field(field_name, :array)
+          relations << name
           define_method(name) { send(field_name).map { |id| klass.new(id) } }
+        end
+
+        # @return [Array<Symbol>] fields defined on this class
+        def fields
+          @fields ||= []
+        end
+
+        # @return [Array<Symbol>] relations defined on this class
+        def relations
+          @relations ||= []
         end
       end
     end
