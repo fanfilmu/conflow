@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    conflow (0.1.0)
+    conflow (0.2.0)
       redis (~> 4.0)
 
 GEM
