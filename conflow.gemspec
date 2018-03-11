@@ -10,6 +10,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Michał Begejowicz"]
   spec.email         = ["michal.begejowicz@codesthq.com"]
 
+  spec.required_ruby_version = "~> 2.3"
+
   spec.summary       = "Redis-backed handling of complicated flows"
   spec.description   = "Redis-backed handling of complicated flows"
   spec.homepage      = "https://github.com/fanfilmu/conflow"
