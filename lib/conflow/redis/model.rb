@@ -23,7 +23,7 @@ module Conflow
         related_keys = self.class.relations.map(&method(:collect_relation_keys))
 
         (keys + related_keys).flatten.tap do |key_list|
-          command :del, key_list if execute
+          command :del, [key_list] if execute && key_list.any?
         end
       end
 
@@ -43,6 +43,12 @@ module Conflow
           sorted_set: Conflow::Redis::SortedSetField,
           set:        Conflow::Redis::SetField
         }.freeze
+
+        # Copies field and relations information
+        def inherited(subclass)
+          subclass.instance_variable_set("@fields", fields.dup)
+          subclass.instance_variable_set("@relations", relations.dup)
+        end
 
         # Defines Redis field accessors.
         # @param name [Symbol] name of the field

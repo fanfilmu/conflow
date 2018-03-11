@@ -26,6 +26,7 @@ module Conflow
         send(job.hook.to_s, result) unless job.hook.nil?
         call_script(Conflow::Redis::CompleteJobScript, job)
         queue_available_jobs
+        destroy! if finished?
       end
 
       private

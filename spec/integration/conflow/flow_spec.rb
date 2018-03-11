@@ -15,6 +15,9 @@ RSpec.describe Conflow::Flow, redis: true, fixtures: true do
 
     it { expect { subject }.to expectation }
     it { expect { subject }.to change { flow.finished? }.to true }
+
+    let(:expected_keys) { ["test_key", Conflow::Flow.counter_key, Conflow::Job.counter_key] }
+    it { expect { subject }.to change { redis.keys("*") }.to match_array expected_keys }
   end
 
   context "for flow with multiple independent jobs" do

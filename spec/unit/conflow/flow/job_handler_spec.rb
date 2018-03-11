@@ -4,12 +4,20 @@ RSpec.describe Conflow::Flow::JobHandler, redis: true do
   let(:dummy)    { Class.new.tap { |klass| klass.include(described_class) } }
   let(:instance) { dummy.new }
   let(:indegree) { instance_double(Conflow::Redis::SortedSetField) }
+  let(:finished) { false }
 
-  before { allow(instance).to receive(:indegree).and_return indegree }
-  before { allow(Conflow::Redis::AddJobScript).to receive(:call) }
-  before { allow(Conflow::Redis::QueueJobsScript).to receive(:call).and_return(["10"]) }
-  before { allow(instance).to receive(:queue) }
-  after  { subject }
+  before do
+    allow(instance).to receive(:indegree).and_return indegree
+    allow(instance).to receive(:queue)
+    allow(instance).to receive(:finished?).and_return(finished)
+    allow(instance).to receive(:a_method).and_return(:result)
+
+    allow(Conflow::Redis::AddJobScript).to receive(:call)
+    allow(Conflow::Redis::QueueJobsScript).to receive(:call).and_return(["10"])
+    allow(Conflow::Redis::CompleteJobScript).to receive(:call)
+  end
+
+  after { subject }
 
   describe "#run" do
     subject { instance.run(job_class, params: params, after: dependencies, hook: hook) }
@@ -79,6 +87,20 @@ RSpec.describe Conflow::Flow::JobHandler, redis: true do
       expect(Conflow::Redis::CompleteJobScript).to receive(:call).with(instance, job)
       expect(instance).to receive(:queue).with(Conflow::Job.new(10))
       expect(instance).to receive(:a_method).with(:result)
+    end
+
+    context "when flow is not finished" do
+      it "doesn't remove flow" do
+        expect(instance).to_not receive(:destroy!)
+      end
+    end
+
+    context "when flow is finished" do
+      let(:finished) { true }
+
+      it "doesn't remove flow" do
+        expect(instance).to receive(:destroy!)
+      end
     end
   end
 end
