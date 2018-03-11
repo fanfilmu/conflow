@@ -24,12 +24,10 @@ module Conflow
       end
 
       def overwrite(new_hash)
-        new_hash.transform_values! { |value| value && JSON.dump(value) }
-
         redis.with do |conn|
           conn.pipelined do
             conn.del(key)
-            conn.hmset(key, new_hash.flatten)
+            conn.hmset(key, prepare_hash(new_hash).flatten)
           end
         end
       end
@@ -62,6 +60,14 @@ module Conflow
 
       def to_s
         to_h.to_s
+      end
+
+      private
+
+      def prepare_hash(hash)
+        hash.each_with_object({}) do |(k, v), h|
+          h[k] = v && JSON.dump(v)
+        end
       end
     end
   end
