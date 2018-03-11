@@ -4,6 +4,14 @@ module Conflow
   class Flow < Conflow::Redis::Field
     # Handles running and finishing jobs
     module JobHandler
+      # @param job_class [Class] Class of the worker which will perform the job
+      # @param params [Hash]
+      #   Parameters of the job. They will be passed to {Conflow::Worker#perform} block. Defalts to empty hash.
+      # @param after [Conflow::Job|Class|Integer|Array<Conflow::Job,Class,Integer>]
+      #   Dependencies of the job. Can be one or more objects of the following classes: {Conflow::Job}, Class, Integer
+      # @param hook [Symbol] method to be called on {Conflow::Flow} instance after job is performed.
+      #   The hook method should accept result of the job (value returned by {Conflow::Worker#perform})
+      # @return [Conflow::Job] enqueued job
       def run(job_class, params: {}, after: [], hook: nil)
         build_job(job_class, params, hook).tap do |job|
           job_classes[job_class] = job

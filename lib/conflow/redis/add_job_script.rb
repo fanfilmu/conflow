@@ -24,6 +24,9 @@ module Conflow
       LUA
 
       class << self
+        # Call the script.
+        # Script changes {Conflow::Flow#indegree} of all of its successors by -1 (freeing them to be queued if it
+        # reaches 0) and sets {Conflow::Job#status} to 1 (finished)
         def call(flow, job, after: [])
           super([flow.job_ids.key, flow.indegree.key, *after.map(&:key)], [job.id])
         end

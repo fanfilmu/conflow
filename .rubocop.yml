@@ -13,3 +13,7 @@ StringLiterals:
 
 DotPosition:
   EnforcedStyle: leading
+
+Naming/PredicateName:
+  NameWhitelist:
+    - has_many

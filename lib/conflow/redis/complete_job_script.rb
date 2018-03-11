@@ -4,8 +4,6 @@ module Conflow
   module Redis
     # Adds new job to flow
     class CompleteJobScript < Script
-      # script accepts keys: flow.indegree_set and job_id
-      # It will change status of the job and update dependencies
       self.script = <<~LUA
         local indegree_set = KEYS[1]
         local job_id = KEYS[2]
@@ -20,6 +18,11 @@ module Conflow
       LUA
 
       class << self
+        # Call the script.
+        # Script changes {Conflow::Flow#indegree} of all of its successors by -1 (freeing them to be queued if it
+        # reaches 0) and sets {Conflow::Job#status} to 1 (finished)
+        # @param flow [Conflow::Flow] Flow to which job belongs to
+        # @param job [Conflow::Job] Job to be marked as completed
         def call(flow, job)
           super([flow.indegree.key, job.key])
         end

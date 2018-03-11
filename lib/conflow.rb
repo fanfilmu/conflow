@@ -26,6 +26,10 @@ require "conflow/flow/job_handler"
 require "conflow/flow"
 require "conflow/worker"
 
+# Conflow allows defining comlicated workflows with dependencies.
+# Inspired by {https://github.com/chaps-io/gush Gush} (the idea) and
+# {https://github.com/nateware/redis-objects Redis::Objects} (the implementation) it focuses solely on dependency logic,
+# while leaving queueing jobs and executing them entirely in hands of the programmer.
 module Conflow
   class << self
     def redis=(conn)
