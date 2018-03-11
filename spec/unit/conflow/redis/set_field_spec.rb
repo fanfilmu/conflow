@@ -13,6 +13,11 @@ RSpec.describe Conflow::Redis::SetField, redis: true do
     it_behaves_like "action changing set", %w[best tie last other]
   end
 
+  describe "#size" do
+    subject { filled_set.size }
+    it { is_expected.to eq 3 }
+  end
+
   describe "#to_a" do
     subject { filled_set.to_a }
     it { is_expected.to match_array %w[best tie last] }

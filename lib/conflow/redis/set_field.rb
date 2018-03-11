@@ -16,6 +16,11 @@ module Conflow
         command :sadd, [key, values]
       end
 
+      # @return [Integer] Number of elements in the set
+      def size
+        command :scard, [key]
+      end
+
       # Removes old values from the set and overrides them with new.
       # @param enumerable [Enumerable] new values of the set
       # @return [String] Redis response

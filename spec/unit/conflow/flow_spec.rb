@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.describe Conflow::Flow, redis: true do
-  subject { described_class.new }
+  let(:flow) { described_class.new }
+  before { flow.job_ids << 5 }
 
-  before { subject.job_ids << 5 }
+  subject { flow }
 
   it { is_expected.to be_a_kind_of(Conflow::Redis::Model) }
   it { is_expected.to be_a_kind_of(Conflow::Redis::Identifier) }
@@ -17,13 +18,32 @@ RSpec.describe Conflow::Flow, redis: true do
   end
 
   describe ".create" do
-    let(:flow) { instance_double(described_class) }
+    let(:mock_flow) { instance_double(described_class) }
 
-    before { allow(described_class).to receive(:new).and_return(flow) }
+    before { allow(described_class).to receive(:new).and_return(mock_flow) }
     after  { described_class.create("An arg") }
 
     it "creates and configures job" do
-      expect(flow).to receive(:configure).with("An arg")
+      expect(mock_flow).to receive(:configure).with("An arg")
+    end
+  end
+
+  describe "finished?" do
+    let(:flow) { described_class.new }
+    subject { flow.finished? }
+
+    context "when there are no pending jobs" do
+      it { is_expected.to eq true }
+    end
+
+    context "when there are jobs in indegree set" do
+      before { flow.indegree.add(5 => 0) }
+      it { is_expected.to eq false }
+    end
+
+    context "when there are jobs in queued jobs set" do
+      before { flow.queued_jobs.add(5) }
+      it { is_expected.to eq false }
     end
   end
 end

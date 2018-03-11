@@ -9,13 +9,21 @@ RSpec.describe Conflow::Flow, redis: true, fixtures: true do
     it { expect { subject }.to change { test_value }.to(3) }
   end
 
+  shared_examples "flow changing value" do |*values| # multiple values mean "OR"
+    let(:matchers) { values.map { |v| change { test_value }.to(v) } }
+    let(:expectation) { matchers.inject { |result, matcher| result.or(matcher) } }
+
+    it { expect { subject }.to expectation }
+    it { expect { subject }.to change { flow.finished? }.to true }
+  end
+
   context "for flow with multiple independent jobs" do
     before do
       flow.run Operation, params: { operator: :+, number: 3 }
       flow.run Operation, params: { operator: :*, number: 2 }
     end
 
-    it { expect { subject }.to change { test_value }.to(6).or(change { test_value }.to(3)) }
+    it_behaves_like "flow changing value", 6, 3
   end
 
   context "for flow with multiple dependent jobs" do
@@ -29,7 +37,7 @@ RSpec.describe Conflow::Flow, redis: true, fixtures: true do
       flow.run Operation, params: { operator: :-, number: -10 }, after: [m1, m2]
     end
 
-    it { expect { subject }.to change { test_value }.to(-35) }
+    it_behaves_like "flow changing value", -35
   end
 
   context "for flow with hooks" do
@@ -40,7 +48,7 @@ RSpec.describe Conflow::Flow, redis: true, fixtures: true do
       flow.run Operation, params: { operator: :*, number: 3 }, after: job, hook: :fizz
     end
 
-    it { expect { subject }.to change { test_value }.to(3) }
+    it_behaves_like "flow changing value", 3
 
     it "calls hook" do
       expect($stdout).to receive(:puts).with("Fizz")
@@ -54,6 +62,6 @@ RSpec.describe Conflow::Flow, redis: true, fixtures: true do
       flow.run SquareRoot, after: Operation
     end
 
-    it { expect { subject }.to change { test_value }.to(20) }
+    it_behaves_like "flow changing value", 20
   end
 end

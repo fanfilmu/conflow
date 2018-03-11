@@ -57,6 +57,12 @@ module Conflow
       new.tap { |flow| flow.configure(*args) }
     end
 
+    # Returns whether or not the flow is finished (all jobs were processed)
+    # @return [Boolean] true if no pending jobs
+    def finished?
+      queued_jobs.size.zero? && indegree.size.zero?
+    end
+
     # @abstract
     # Override this method in order to contain your flow definition inside the class.
     # This method will be called if flow is created using {.create} method.
