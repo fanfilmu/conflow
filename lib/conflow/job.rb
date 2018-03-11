@@ -14,7 +14,7 @@ module Conflow
 
     def initialize(*)
       super
-      self.status = 0
+      status.default(0)
     end
 
     def worker_type

@@ -8,6 +8,10 @@ module Conflow
         command :set, [key, value]
       end
 
+      def default(value)
+        command :set, [key, value, nx: true]
+      end
+
       def ==(other)
         case other
         when String, Symbol, Numeric then to_s == other.to_s

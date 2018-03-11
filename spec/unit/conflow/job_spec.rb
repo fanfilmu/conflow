@@ -13,8 +13,17 @@ RSpec.describe Conflow::Job, redis: true do
   context "fields" do
     it { expect(subject.successors).to eq [Conflow::Job.new(15)] }
     it { expect(subject.successor_ids).to eq ["15"] }
-    it { expect(subject.status).to eq "0" }
     it { expect(subject.hook.to_s).to eq nil }
+  end
+
+  context "default values" do
+    it { expect(subject.status).to eq "0" }
+
+    context "when value was overriden" do
+      before { described_class.new(1).tap { |job| job.status = 1 } }
+
+      it { expect(subject.status).to eq "1" }
+    end
   end
 
   describe "#worker_type" do

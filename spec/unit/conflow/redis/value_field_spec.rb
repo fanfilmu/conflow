@@ -13,6 +13,18 @@ RSpec.describe Conflow::Redis::ValueField, redis: true do
     it_behaves_like "action changing value", "NaN"
   end
 
+  describe "#default" do
+    context "when value is empty" do
+      subject { value_field.default(10) }
+      it_behaves_like "action changing value", "10"
+    end
+
+    context "when value is not empty" do
+      subject { filled_value.default(10) }
+      it { expect { subject }.to_not(change { filled_value.to_s }) }
+    end
+  end
+
   describe "#==" do
     it { expect(filled_value == 4.5).to eq true }
     it { expect(filled_value == described_class.new("test.value")).to eq true }
