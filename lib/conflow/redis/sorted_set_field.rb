@@ -25,17 +25,6 @@ module Conflow
         command :zscore, [key, value]
       end
 
-      # Set score of given element.
-      # @param value [String, Symbol] element of the set
-      # @param rank [Numeric] score to be assigned
-      # @return [Integer] Number of added elements (1 if key didn't exist, 0 otherwise)
-      #
-      # @example
-      #   field[:last] = 24 #=> 0
-      def []=(value, rank)
-        command :zadd, [key, rank, value]
-      end
-
       # Number of elements in the set
       # @return [Integer] Size of the set
       #
@@ -53,22 +42,6 @@ module Conflow
       #   field.delete(:last) #=> 1
       def delete(value)
         command :zrem, [key, value]
-      end
-
-      # Returns first *n* elements of the sorted set
-      # @param num [Integer] amount of elements to be returned. Defaults to 1.
-      # @return [String, Array<String>] first *num* elements from the set
-      def first(num = 1)
-        result = command :zrange, [key, 0, num - 1]
-        num == 1 ? result[0] : result
-      end
-
-      # Returns last *n* elements of the sorted set
-      # @param num [Integer] amount of elements to be returned. Defaults to 1.
-      # @return [String, Array<String>] last *num* elements from the set
-      def last(num = 1)
-        result = command :zrevrange, [key, 0, num - 1]
-        num == 1 ? result[0] : result
       end
 
       # Creates regular Ruby Hash based on Redis values.
