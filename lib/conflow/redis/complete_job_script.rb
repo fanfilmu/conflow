@@ -3,6 +3,7 @@
 module Conflow
   module Redis
     # Adds new job to flow
+    # @api private
     class CompleteJobScript < Script
       self.script = <<~LUA
         local indegree_set = KEYS[1]

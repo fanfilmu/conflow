@@ -3,6 +3,7 @@
 module Conflow
   module Redis
     # Represents single value (Redis String). Values are serialized as JSON in order to preserve type.
+    # @api private
     class ValueField < Field
       # @note *value* must be serializable through JSON.dump
       # @param value [Object] new value to be saved
@@ -20,7 +21,7 @@ module Conflow
 
       # @param other [Object] Object to compare value with. Handles Strings, Numerics,
       #   Symbols and other {ValueField} objects
-      # @return [String] Redis response
+      # @return [Boolean] true if equal
       def ==(other)
         case other
         when String, Numeric then value == other

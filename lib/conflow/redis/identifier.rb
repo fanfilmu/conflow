@@ -5,6 +5,7 @@ module Conflow
     # Identifier changes logic of fields so that they can be found by an id.
     # ID is a counter stored in redis under .counter_key
     # Key is build with template stored in .key_template
+    # @api private
     module Identifier
       # Extends base class with {ClassMethods}
       def self.included(base)
@@ -13,7 +14,10 @@ module Conflow
 
       # class methods for classes with identifier
       module ClassMethods
-        attr_writer :counter_key, :key_template
+        # @see counter_key
+        attr_writer :counter_key
+        # @see key_template
+        attr_writer :key_template
 
         # Copies *counter_key* and *key_template* to child classes
         def inherited(base)

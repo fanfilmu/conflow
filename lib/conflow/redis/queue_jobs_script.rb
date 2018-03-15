@@ -3,6 +3,7 @@
 module Conflow
   module Redis
     # Removes jobs from indegree set, adds them to queued list, and returns IDs of queued jobs.
+    # @api private
     class QueueJobsScript < Script
       self.script = <<~LUA
         local indegree_set = KEYS[1]

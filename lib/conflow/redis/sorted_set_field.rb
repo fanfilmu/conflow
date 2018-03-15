@@ -4,6 +4,7 @@ module Conflow
   module Redis
     # Represents Redis sorted set. Closest Ruby representation is a Hash
     # where keys are elements of the set and values represent score.
+    # @api private
     class SortedSetField < Field
       # Adds one or more keys to the set.
       # @param hash [Hash] hash of values and scores to be added

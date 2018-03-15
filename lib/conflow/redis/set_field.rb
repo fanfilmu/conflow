@@ -3,6 +3,7 @@
 module Conflow
   module Redis
     # Represents Redis list. It's methods mirror most used Set methods.
+    # @api private
     class SetField < Field
       include Enumerable
 

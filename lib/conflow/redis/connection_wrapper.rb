@@ -3,6 +3,7 @@
 module Conflow
   module Redis
     # Wraps Redis connection to behave like connection pool
+    # @api private
     class ConnectionWrapper
       # @param redis [Redis] Redis connection to be wrapped
       def initialize(redis)

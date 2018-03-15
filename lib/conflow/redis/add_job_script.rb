@@ -3,6 +3,7 @@
 module Conflow
   module Redis
     # Adds new job to flow
+    # @api private
     class AddJobScript < Script
       # script accepts keys: flow.job_ids, flow.indegree, and keys successors of the jobs on which new job depends.
       # It also accepts one argument: id of the new job

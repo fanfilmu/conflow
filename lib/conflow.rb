@@ -6,6 +6,7 @@ require "digest"
 require "json"
 require "redis"
 
+require "conflow/redis"
 require "conflow/redis/connection_wrapper"
 require "conflow/redis/field"
 require "conflow/redis/value_field"
@@ -34,6 +35,12 @@ require "conflow/worker"
 # while leaving queueing jobs and executing them entirely in hands of the programmer.
 module Conflow
   class << self
+    # Assigns Redis connection to be used by {Conflow}. It will be wrapped in ConnectionWrapper
+    # for Redis instances, in order to have single API containing #with method.
+    # You can also assign ConnectionPool instance.
+    # @param conn [Redis, ConnectionPool] Redis connection
+    # @example
+    #   Conflow.redis = Redis.new
     def redis=(conn)
       @redis =
         if defined?(ConnectionPool) && conn.is_a?(ConnectionPool)
@@ -43,6 +50,7 @@ module Conflow
         end
     end
 
+    # @return [Conflow::Redis::ConnectionWrapper, ConnectionPool] Wrapped Redis connection
     def redis
       self.redis = ::Redis.current unless defined?(@redis)
       @redis

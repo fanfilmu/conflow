@@ -3,6 +3,7 @@
 module Conflow
   module Redis
     # Models adds .field method which allows to define fields easily.
+    # @api private
     module Model
       # Extends base class with .field and .has_many methods
       def self.included(base)

@@ -3,6 +3,7 @@
 module Conflow
   module Redis
     # Main class for scripts, handling logic of executing and caching scripts.
+    # @api private
     class Script
       class << self
         # @return [Boolean] whether scripts are cached or not

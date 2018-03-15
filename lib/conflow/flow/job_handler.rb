@@ -22,6 +22,9 @@ module Conflow
         end
       end
 
+      # Finishes job, changes its status, runs hook if it's present and queues new available jobs
+      # @param job [Conflow::Job] job to be marked as finished
+      # @param result [Object] result of the job to be passed to hook
       def finish(job, result = nil)
         send(job.hook.to_s, result) unless job.hook.nil?
         call_script(Conflow::Redis::CompleteJobScript, job)
