@@ -3,6 +3,8 @@
 RSpec.describe Conflow::Flow, redis: true, fixtures: true do
   subject { perform_work! }
 
+  let(:initial_value) { 0 }
+
   context "for simple flow" do
     before { flow.run Operation, params: { operator: :+, number: 3 } }
 
@@ -66,5 +68,13 @@ RSpec.describe Conflow::Flow, redis: true, fixtures: true do
     end
 
     it_behaves_like "flow changing value", 20
+  end
+
+  context "for flow with dependency on job that was never enqueued" do
+    let(:initial_value) { 4 }
+
+    before { flow.run SquareRoot, after: Operation }
+
+    it_behaves_like "flow changing value", 2
   end
 end

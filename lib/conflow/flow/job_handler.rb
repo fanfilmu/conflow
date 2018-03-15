@@ -15,7 +15,7 @@ module Conflow
       def run(job_class, params: {}, after: [], hook: nil)
         build_job(job_class, params, hook).tap do |job|
           job_classes[job_class] = job
-          after = prepare_dependencies(after)
+          after = prepare_dependencies(after).compact
 
           call_script(Conflow::Redis::AddJobScript, job, after: after)
           queue_available_jobs

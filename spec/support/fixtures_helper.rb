@@ -7,7 +7,7 @@ module FixturesHelper
     fixtures = %i[Operation SquareRoot ThreadBasedFlow Worker]
     fixtures.each { |fixture| Object.const_set(fixture, FixturesHelper.const_get(fixture)) }
 
-    redis.set("test_key", 0)
+    redis.set("test_key", initial_value)
 
     example.run
 

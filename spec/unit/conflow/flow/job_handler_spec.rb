@@ -62,6 +62,14 @@ RSpec.describe Conflow::Flow::JobHandler, redis: true do
       end
     end
 
+    context "when dependency is a class which was not enqueued" do
+      let(:dependencies) { Proc }
+
+      it_behaves_like "method calling add job script and queueing jobs" do
+        let(:dependency_list) { [] }
+      end
+    end
+
     context "when dependency is a class of a previously added job" do
       let(:job) { instance.run(Proc) }
       let(:dependencies) { Proc }
