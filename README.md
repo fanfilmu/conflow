@@ -145,6 +145,24 @@ SecondJob.new({}).call
 FinishUp.new({}).call
 ```
 
+## Theory
+
+The main idea of the gem is, obviously, a directed graph containing information about dependencies. It is stored in Redis in following fields:
+
+* `conflow:job:<id>:successors` - ([List](https://redis.io/topics/data-types#lists)) containing IDs of jobs which depend on `<id>`
+* `conflow:flow:<id>:indegee` - ([Sorted Set](https://redis.io/topics/data-types#sorted-sets)) set of all unqueued jobs with score representing how many dependencies are not yet fulfilled
+
+There are three main actions that can be performed on this graph (Redis-wise):
+
+1. Queue jobs
+   Removes all jobs with score 0 from `:indegree` set
+2. Complete job
+   Decrement scores of all of the job's successors by one
+3. Add job
+   Add job ID to `:successors` list for all jobs on which it depends and add job itself to `:indegree` set
+
+All of these actions are performed via `eval`/`evalsha` - it lifts problems with synchronization (as scripts are executed as if in transaction) and significantly reduces amount of requests made to Redis.
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
