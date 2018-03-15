@@ -2,7 +2,7 @@
 
 [![Gem Version](https://badge.fury.io/rb/conflow.svg)](https://badge.fury.io/rb/conflow) [![Build Status](https://travis-ci.org/fanfilmu/conflow.svg?branch=master)](https://travis-ci.org/fanfilmu/conflow) [![Maintainability](https://api.codeclimate.com/v1/badges/80b66a285ca1803f391a/maintainability)](https://codeclimate.com/github/fanfilmu/conflow/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/80b66a285ca1803f391a/test_coverage)](https://codeclimate.com/github/fanfilmu/conflow/test_coverage)
 
-Conflow allows defining comlicated workflows with dependencies. Inspired by [Gush](https://github.com/chaps-io/gush) (the idea) and [Redis::Objects](https://github.com/nateware/redis-objects) (the implementation) it focuses solely on dependency logic, while leaving queueing jobs and executing them entirely in hands of the programmer.
+Conflow allows defining complicated workflows with dependencies. Inspired by [Gush](https://github.com/chaps-io/gush) (the idea) and [Redis::Objects](https://github.com/nateware/redis-objects) (the implementation) it focuses solely on dependency logic, while leaving queueing jobs and executing them entirely in hands of the programmer.
 
 Please have a look at `Gush` if you already use Rails and ActiveJob - it might suit your needs better.
 
@@ -96,6 +96,24 @@ end
 ```
 
 ![Created graph](https://camo.githubusercontent.com/0b1ee59994323900906264ea50fbc9169e4d21dd/68747470733a2f2f63686172742e676f6f676c65617069732e636f6d2f63686172743f63686c3d646967726170682b472b2537422530442530412b2b72616e6b6469722533444c522533422530442530412b2b25323253544152542532322b2d2533452b25323246697273744a6f622532322530442530412b2b25323253544152542532322b2d2533452b253232496e646570656e64656e744a6f622532322530442530412b2b25323246697273744a6f622532322b2d2533452b2532325365636f6e644a6f622532322530442530412b2b253232496e646570656e64656e744a6f622532322b2d2533452b2532325365636f6e644a6f622532322530442530412b2b2532325365636f6e644a6f622532322b2d2533452b25323246696e69736855702532322530442530412b2b25323246696e69736855702532322b2d2533452b253232454e442532322530442530412537442530442530412b266368743d6776)
+
+### Hooks
+
+If you want to modify your flow dynamically depending on results of your jobs, you can use hooks.
+
+Hooks are methods defined on the `Flow` objects which will be called with result of the job (value returned by `Worker`, see [Performing jobs](https://github.com/fanfilmu/conflow#performing-jobs)).
+
+```ruby
+class MyFlow < ApplicationFlow
+  def configure
+    run CollectEmails, hook: :send_notifications
+  end
+
+  def send_notifications(emails)
+    emails.each { |email| run SendNotification, params: { email: email } }
+  end
+end
+```
 
 ### Performing jobs
 
