@@ -6,21 +6,8 @@ module Conflow
     class HashField < Field
       include Enumerable
 
-      def [](field)
-        value = command(:hget, [key, field])
-        value ? JSON.parse(value) : value
-      end
-
-      def []=(field, value)
-        command :hset, [key, field, JSON.dump(value)]
-      end
-
       def merge(hash)
         command :hmset, [key, hash.flatten]
-      end
-
-      def delete(*fields)
-        command :hdel, [key, fields]
       end
 
       def overwrite(new_hash)
@@ -32,13 +19,9 @@ module Conflow
         end
       end
 
-      def keys
-        command(:hkeys, [key]).map(&:to_sym)
-      end
-
-      def size
-        command :hlen, [key]
-      end
+      # def size
+      #   command :hlen, [key]
+      # end
 
       def to_h
         command(:hgetall, [key]).each_with_object({}) do |(key, value), hash|

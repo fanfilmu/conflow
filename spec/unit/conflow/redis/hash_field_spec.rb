@@ -8,45 +8,14 @@ RSpec.describe Conflow::Redis::HashField, redis: true do
     it { expect { subject }.to change { hash_field.to_h }.to(expected_hash) }
   end
 
-  describe "#[]" do
-    subject { hash_field[:key] }
-
-    it { is_expected.to eq nil }
-
-    context "when field is set" do
-      before { hash_field[:key] = "val" }
-      it { is_expected.to eq "val" }
-    end
-  end
-
-  describe "#[]=" do
-    subject { hash_field[:key] = "something" }
-    it_behaves_like "action changing hash", key: "something"
-  end
-
   describe "#merge" do
     subject { filled_hash.merge(c: 8, d: 4) }
     it_behaves_like "action changing hash", a: 1, b: 2, c: 8, d: 4
   end
 
-  describe "#delete" do
-    subject { filled_hash.delete(:a, :b) }
-    it_behaves_like "action changing hash", c: 4
-  end
-
   describe "#overwrite" do
     subject { filled_hash.overwrite("diff" => "y") }
     it_behaves_like "action changing hash", diff: "y"
-  end
-
-  describe "#keys" do
-    subject { filled_hash.keys }
-    it { is_expected.to eq %i[a b c] }
-  end
-
-  describe "#size" do
-    subject { filled_hash.size }
-    it { is_expected.to eq 3 }
   end
 
   describe "#each" do
