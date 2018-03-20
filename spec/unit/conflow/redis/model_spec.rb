@@ -104,6 +104,13 @@ RSpec.describe Conflow::Redis::Model, redis: true do
     end
   end
 
+  describe "#assign_attributes" do
+    subject { instance.assign_attributes(records: %w[a b t], status: :assigned) }
+
+    it { expect { subject }.to change { instance.records.to_a }.to %w[a b t] }
+    it { expect { subject }.to change { instance.status.to_s }.to "assigned" }
+  end
+
   describe "#destroy!" do
     subject { instance.destroy! }
 

@@ -28,6 +28,13 @@ module Conflow
         end
       end
 
+      # Convienience method for assigning multiple fields in model
+      def assign_attributes(**attributes)
+        attributes.each do |attribute, value|
+          send("#{attribute}=", value)
+        end
+      end
+
       private
 
       def collect_relation_keys(relation)
