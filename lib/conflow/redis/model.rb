@@ -49,7 +49,8 @@ module Conflow
           array:      Conflow::Redis::ArrayField,
           value:      Conflow::Redis::ValueField,
           sorted_set: Conflow::Redis::SortedSetField,
-          set:        Conflow::Redis::SetField
+          set:        Conflow::Redis::SetField,
+          raw_value:  Conflow::Redis::RawValueField
         }.freeze
 
         # Copies field and relations information

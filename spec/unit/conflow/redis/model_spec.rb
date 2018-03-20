@@ -77,7 +77,9 @@ RSpec.describe Conflow::Redis::Model, redis: true do
       end
     end
 
-    let(:expected_error) { "Unknown type: linked_list. Should be one of: [:hash, :array, :value, :sorted_set, :set]" }
+    let(:expected_error) do
+      "Unknown type: linked_list. Should be one of: [:hash, :array, :value, :sorted_set, :set, :raw_value]"
+    end
 
     it "raises error" do
       expect { test_class }.to raise_error(ArgumentError, expected_error)
