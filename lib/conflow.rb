@@ -23,6 +23,7 @@ require "conflow/redis/findable"
 require "conflow/redis/script"
 require "conflow/redis/add_job_script"
 require "conflow/redis/complete_job_script"
+require "conflow/redis/resolve_promises_script"
 require "conflow/redis/queue_jobs_script"
 
 require "conflow/error"
