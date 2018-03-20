@@ -26,6 +26,8 @@ require "conflow/redis/complete_job_script"
 require "conflow/redis/queue_jobs_script"
 
 require "conflow/error"
+require "conflow/future"
+require "conflow/promise"
 require "conflow/job"
 require "conflow/flow/job_handler"
 require "conflow/flow"
