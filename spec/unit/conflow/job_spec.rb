@@ -14,6 +14,7 @@ RSpec.describe Conflow::Job, redis: true do
     it { expect(subject.successors).to eq [Conflow::Job.new(15)] }
     it { expect(subject.successor_ids).to eq ["15"] }
     it { expect(subject.hook.to_s).to eq nil }
+    it { expect(subject.result.to_h).to eq({}) }
   end
 
   context "default values" do

@@ -18,6 +18,7 @@ module Conflow
     has_many :successors, Conflow::Job
     has_many :promises,   Conflow::Promise
     field :params,     :hash
+    field :result,     :hash
     field :class_name, :value
     field :status,     :value # 0 - pending, 1 - finished
     field :hook,       :value

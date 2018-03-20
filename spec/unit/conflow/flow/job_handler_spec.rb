@@ -87,14 +87,15 @@ RSpec.describe Conflow::Flow::JobHandler, redis: true do
   end
 
   describe "#finish" do
-    subject { instance.finish(job, :result) }
+    subject { instance.finish(job, result: 114) }
 
-    let(:job) { instance_double(Conflow::Job, hook: :a_method) }
+    let(:job) { instance_double(Conflow::Job, hook: :a_method, :result= => true) }
 
     it "calls complete job script and enqueues new jobs" do
       expect(Conflow::Redis::CompleteJobScript).to receive(:call).with(instance, job)
       expect(instance).to receive(:queue).with(Conflow::Job.new(10))
-      expect(instance).to receive(:a_method).with(:result)
+      expect(instance).to receive(:a_method).with(result: 114)
+      expect(job).to receive(:result=).with(result: 114)
     end
 
     context "when flow is not finished" do

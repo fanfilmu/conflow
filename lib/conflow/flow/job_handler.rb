@@ -27,6 +27,7 @@ module Conflow
       # @param result [Object] result of the job to be passed to hook
       def finish(job, result = nil)
         send(job.hook.to_s, result) unless job.hook.nil?
+        job.result = result if result
         call_script(Conflow::Redis::CompleteJobScript, job)
         queue_available_jobs
         destroy! if finished?

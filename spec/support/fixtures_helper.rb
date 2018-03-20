@@ -41,7 +41,7 @@ module FixturesHelper
         result = perform_operation(conn) while result.nil?
       end
 
-      new_value
+      { value: new_value }
     end
 
     private
@@ -79,7 +79,7 @@ module FixturesHelper
     end
 
     def fizz(result)
-      puts "Fizz" if result % 3 == 0
+      puts "Fizz" if result[:value] % 3 == 0
     end
   end
 
