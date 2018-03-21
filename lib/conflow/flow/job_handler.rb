@@ -13,13 +13,12 @@ module Conflow
       #   The hook method should accept result of the job (value returned by {Conflow::Worker#perform})
       # @return [Conflow::Job] enqueued job
       def run(job_class, params: {}, after: [], hook: nil)
-        build_job(job_class, params, hook).tap do |job|
-          job_classes[job_class] = job
-          after = prepare_dependencies(after).compact
+        job, dependencies = job_builder.call(job_class, params, after, hook)
 
-          call_script(Conflow::Redis::AddJobScript, job, after: after)
-          queue_available_jobs
-        end
+        call_script(Conflow::Redis::AddJobScript, job, after: dependencies)
+        queue_available_jobs
+
+        job
       end
 
       # Finishes job, changes its status, runs hook if it's present and queues new available jobs
@@ -41,35 +40,12 @@ module Conflow
         end
       end
 
-      def build_job(job_class, params, hook)
-        Conflow::Job.new.tap do |job|
-          job.params = params if params.any?
-          job.hook = hook if hook
-          job.class_name = job_class.name
-        end
-      end
-
       def call_script(script, *args)
         script.call(self, *args)
       end
 
-      def prepare_dependencies(dependencies)
-        case dependencies
-        when Enumerable then dependencies.map(&method(:prepare_dependency))
-        else [prepare_dependency(dependencies)]
-        end
-      end
-
-      def prepare_dependency(dependency)
-        case dependency
-        when Conflow::Job    then dependency
-        when Class           then job_classes[dependency]
-        when String, Numeric then Conflow::Job.new(dependency)
-        end
-      end
-
-      def job_classes
-        @job_classes ||= {}
+      def job_builder
+        @job_builder ||= JobBuilder.new
       end
     end
   end
