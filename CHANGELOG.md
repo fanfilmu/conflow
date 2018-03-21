@@ -1,3 +1,7 @@
+## 0.4.0
+
+- Removed hooks, added promises. If you were looking only on Changelog, you never even knew about hooks - it can stay that way :)
+
 ## 0.2.0
 
 - Flow and Jobs are now removed after they are finished
