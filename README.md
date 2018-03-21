@@ -97,24 +97,6 @@ end
 
 ![Created graph](https://camo.githubusercontent.com/0b1ee59994323900906264ea50fbc9169e4d21dd/68747470733a2f2f63686172742e676f6f676c65617069732e636f6d2f63686172743f63686c3d646967726170682b472b2537422530442530412b2b72616e6b6469722533444c522533422530442530412b2b25323253544152542532322b2d2533452b25323246697273744a6f622532322530442530412b2b25323253544152542532322b2d2533452b253232496e646570656e64656e744a6f622532322530442530412b2b25323246697273744a6f622532322b2d2533452b2532325365636f6e644a6f622532322530442530412b2b253232496e646570656e64656e744a6f622532322b2d2533452b2532325365636f6e644a6f622532322530442530412b2b2532325365636f6e644a6f622532322b2d2533452b25323246696e69736855702532322530442530412b2b25323246696e69736855702532322b2d2533452b253232454e442532322530442530412537442530442530412b266368743d6776)
 
-### Hooks
-
-If you want to modify your flow dynamically depending on results of your jobs, you can use hooks.
-
-Hooks are methods defined on the `Flow` objects which will be called with result of the job (value returned by `Worker`, see [Performing jobs](https://github.com/fanfilmu/conflow#performing-jobs)).
-
-```ruby
-class MyFlow < ApplicationFlow
-  def configure
-    run CollectEmails, hook: :send_notifications
-  end
-
-  def send_notifications(emails)
-    emails.each { |email| run SendNotification, params: { email: email } }
-  end
-end
-```
-
 ### Performing jobs
 
 To perform job, use `Conflow::Worker` mixin. It adds `#perform` method, which accepts two arguments: IDs of the flow and the job.

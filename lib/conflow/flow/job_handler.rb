@@ -9,11 +9,9 @@ module Conflow
       #   Parameters of the job. They will be passed to {Conflow::Worker#perform} block. Defalts to empty hash.
       # @param after [Conflow::Job|Class|Integer|Array<Conflow::Job,Class,Integer>]
       #   Dependencies of the job. Can be one or more objects of the following classes: {Conflow::Job}, Class, Integer
-      # @param hook [Symbol] method to be called on {Conflow::Flow} instance after job is performed.
-      #   The hook method should accept result of the job (value returned by {Conflow::Worker#perform})
       # @return [Conflow::Job] enqueued job
-      def run(job_class, params: {}, after: [], hook: nil)
-        job, dependencies = job_builder.call(job_class, params, after, hook)
+      def run(job_class, params: {}, after: [])
+        job, dependencies = job_builder.call(job_class, params, after)
 
         call_script(Conflow::Redis::AddJobScript, job, after: dependencies)
         queue_available_jobs
@@ -26,11 +24,10 @@ module Conflow
         call_script(Conflow::Redis::ResolvePromisesScript, job)
       end
 
-      # Finishes job, changes its status, runs hook if it's present and queues new available jobs
+      # Finishes job, changes its status, assigns result of the job and queues new available jobs
       # @param job [Conflow::Job] job to be marked as finished
-      # @param result [Object] result of the job to be passed to hook
+      # @param result [Object] result of the job
       def finish(job, result = nil)
-        send(job.hook.to_s, result) unless job.hook.nil?
         job.result = result if result
         call_script(Conflow::Redis::CompleteJobScript, job)
         queue_available_jobs

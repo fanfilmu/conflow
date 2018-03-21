@@ -5,8 +5,6 @@ module Conflow
   # @!attribute [rw] status
   #   Status of the job
   #   @return [Integer] 0 - pending, 1 - finished
-  # @!attribute [rw] hook
-  #   @return [String, nil] name of the method on related flow to be called once job is finished
   # @!attribute [rw] class_name
   #   @return [String] class name of the worker class
   # @!attribute [rw] params
@@ -21,7 +19,6 @@ module Conflow
     field :result,     :hash
     field :class_name, :value
     field :status,     :value # 0 - pending, 1 - finished
-    field :hook,       :value
 
     # Returns instance of Job. It sets status to 0 (pending) for new jobs
     def initialize(*)

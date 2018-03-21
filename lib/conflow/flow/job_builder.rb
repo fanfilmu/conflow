@@ -10,12 +10,12 @@ module Conflow
         @context = {}
       end
 
-      def call(worker_class, params, dependencies, hook)
+      def call(worker_class, params, dependencies)
         job = initialize_job(worker_class)
 
         promises, params = extract_promises(job, params)
         dependencies = build_dependencies(promises, dependencies)
-        assign_job_attributes(job, promises, params, hook)
+        assign_job_attributes(job, promises, params)
 
         [job, dependencies]
       end
@@ -29,8 +29,7 @@ module Conflow
         end
       end
 
-      def assign_job_attributes(job, promises, params, hook)
-        job.hook = hook if hook
+      def assign_job_attributes(job, promises, params)
         job.params = params if params.any?
         job.promise_ids.push(*promises.map(&:id)) if promises.any?
       end

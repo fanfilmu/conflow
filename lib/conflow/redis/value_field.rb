@@ -19,21 +19,14 @@ module Conflow
         command :set, [key, JSON.dump(value), nx: true]
       end
 
-      # @param other [Object] Object to compare value with. Handles Strings, Numerics,
-      #   Symbols and other {ValueField} objects
+      # @param other [Object] Object to compare value with. Handles Strings, Numerics, and other {ValueField} objects
       # @return [Boolean] true if equal
       def ==(other)
         case other
         when String, Numeric then value == other
-        when Symbol          then value.to_sym == other
         when ValueField      then key == other.key || to_s == other.to_s
         else super
         end
-      end
-
-      # @return [Boolean] true if object does not exist in Redis, else otherwise
-      def nil?
-        value.nil?
       end
 
       # @return [String, nil] String representation of value

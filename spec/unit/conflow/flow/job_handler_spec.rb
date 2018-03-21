@@ -20,19 +20,17 @@ RSpec.describe Conflow::Flow::JobHandler, redis: true do
   after { subject }
 
   describe "#run" do
-    subject { instance.run(job_class, params: params, after: dependencies, hook: hook) }
+    subject { instance.run(job_class, params: params, after: dependencies) }
 
     let(:job_class)    { instance_double(Class, name: "TestClass") }
     let(:params)       { { "test" => 14, "params" => true } }
     let(:dependencies) { instance_double(Array) }
-    let(:hook)         { :a_method }
 
     let(:created_job) do
       satisfy do |job|
         expect(job).to be_a_kind_of(Conflow::Job)
         expect(job.class_name).to eq "TestClass"
         expect(job.params.to_h).to eq(test: 14, params: true)
-        expect(job.hook).to eq :a_method
       end
     end
 
@@ -89,12 +87,11 @@ RSpec.describe Conflow::Flow::JobHandler, redis: true do
   describe "#finish" do
     subject { instance.finish(job, result: 114) }
 
-    let(:job) { instance_double(Conflow::Job, hook: :a_method, :result= => true) }
+    let(:job) { instance_double(Conflow::Job, :result= => true) }
 
     it "calls complete job script and enqueues new jobs" do
       expect(Conflow::Redis::CompleteJobScript).to receive(:call).with(instance, job)
       expect(instance).to receive(:queue).with(Conflow::Job.new(10))
-      expect(instance).to receive(:a_method).with(result: 114)
       expect(job).to receive(:result=).with(result: 114)
     end
 
