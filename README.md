@@ -97,6 +97,25 @@ end
 
 ![Created graph](https://camo.githubusercontent.com/0b1ee59994323900906264ea50fbc9169e4d21dd/68747470733a2f2f63686172742e676f6f676c65617069732e636f6d2f63686172743f63686c3d646967726170682b472b2537422530442530412b2b72616e6b6469722533444c522533422530442530412b2b25323253544152542532322b2d2533452b25323246697273744a6f622532322530442530412b2b25323253544152542532322b2d2533452b253232496e646570656e64656e744a6f622532322530442530412b2b25323246697273744a6f622532322b2d2533452b2532325365636f6e644a6f622532322530442530412b2b253232496e646570656e64656e744a6f622532322b2d2533452b2532325365636f6e644a6f622532322530442530412b2b2532325365636f6e644a6f622532322b2d2533452b25323246696e69736855702532322530442530412b2b25323246696e69736855702532322b2d2533452b253232454e442532322530442530412537442530442530412b266368743d6776)
 
+#### Promises
+
+In order to use other Job's result as parameter of another job, use Futures:
+
+```ruby
+class MyFlow < ApplicationFlow
+  def configure
+    first = run FirstJob
+    run SecondJob, params: { object_id: first.outcome[:id] }
+  end
+end
+```
+
+Note that `SecondJob` will automatically depend on `FirstJob`. When `FirstJob` finishes, it is expected to return hash: `{ id: "<some object>" }`.
+
+Returned object must be serializable with JSON in order to be properly persisted and handled by Redis script which resolves promises.
+
+If `FirstJob` returns `{ id: 14 }`, `SecondJob` will be run with `{ object_id: 14 }` parameter.
+
 ### Performing jobs
 
 To perform job, use `Conflow::Worker` mixin. It adds `#perform` method, which accepts two arguments: IDs of the flow and the job.
