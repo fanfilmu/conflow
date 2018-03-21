@@ -19,7 +19,11 @@ module Conflow
         job
       end
 
-      # Starts the job - resolves it's promises
+      # Starts the job - resolves it's promises. It's called by {Worker} before it yields parameters
+      # @api private
+      # @see Worker
+      # @param job [Conflow::Job] job that needs to resolve it's promises
+      # @return [void]
       def start(job)
         call_script(Conflow::Redis::ResolvePromisesScript, job)
       end

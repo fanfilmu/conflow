@@ -43,6 +43,8 @@ module Conflow
     field :indegree,    :sorted_set
 
     # Create new flow with given parameters
+    # @param args [Array<Object>] any parameters that will be passed to {#configure} method
+    # @return [Conflow::Job] job object representing created job
     # @example Simple configurable flow
     #   class MyFlow < Conflow::Flow
     #     def configure(id:, strict:)
@@ -66,6 +68,8 @@ module Conflow
     # @abstract
     # Override this method in order to contain your flow definition inside the class.
     # This method will be called if flow is created using {.create} method.
+    # @param args [Array<Object>] any arguments needed to start a flow
+    # @see create
     def configure(*args); end
   end
 end

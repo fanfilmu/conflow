@@ -33,6 +33,14 @@ module Conflow
       Object.const_get(class_name.to_s)
     end
 
+    # Returns promise of this job's result. It assumes result of the job will be a Hash.
+    # @note Passing a {Promise} as a job parameter automatically sets the job
+    #   which produces the result as dependency of the new job
+    # @return [Conflow::Future] future object (basis of {Promise})
+    # @example Running job which depends on result of another
+    #   job = run MyJob, params: { key: 400 }
+    #   run OtherJob, params: { value: job.outcome[:result] }
+    #   # now OtherJob will depend on MyJob and it will use it's :result result as it's own :value parameter
     def outcome
       Future.new(self)
     end

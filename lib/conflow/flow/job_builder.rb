@@ -3,13 +3,19 @@
 module Conflow
   class Flow < Conflow::Redis::Field
     # Handles creating jobs
+    # @api private
     class JobBuilder
+      # Holds mapping between worker classes and {Conflow::Job} objects
       attr_reader :context
 
+      # Initialize {JobBuilder} with new empty context
       def initialize
         @context = {}
       end
 
+      # Create new job and resolve it's dependencies.
+      # @see Conflow::Flow::JobHandler#run
+      # @return [Conflow::Job, Array<Conflow::Job>]
       def call(worker_class, params, dependencies)
         job = initialize_job(worker_class)
 
