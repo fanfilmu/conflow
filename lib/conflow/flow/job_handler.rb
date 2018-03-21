@@ -21,6 +21,11 @@ module Conflow
         job
       end
 
+      # Starts the job - resolves it's promises
+      def start(job)
+        call_script(Conflow::Redis::ResolvePromisesScript, job)
+      end
+
       # Finishes job, changes its status, runs hook if it's present and queues new available jobs
       # @param job [Conflow::Job] job to be marked as finished
       # @param result [Object] result of the job to be passed to hook

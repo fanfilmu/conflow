@@ -26,6 +26,8 @@ module Conflow
       job = Conflow::Job.new(job_id)
       flow = Conflow::Flow.find(flow_id)
 
+      flow.start(job)
+
       yield(job.worker_type, job.params).tap { |result| flow.finish(job, result) }
     end
   end

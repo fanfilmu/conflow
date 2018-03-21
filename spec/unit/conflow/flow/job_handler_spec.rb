@@ -107,7 +107,7 @@ RSpec.describe Conflow::Flow::JobHandler, redis: true do
     context "when flow is finished" do
       let(:finished) { true }
 
-      it "doesn't remove flow" do
+      it "removes flow" do
         expect(instance).to receive(:destroy!)
       end
     end

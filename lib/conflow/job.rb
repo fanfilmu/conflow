@@ -35,5 +35,9 @@ module Conflow
     def worker_type
       Object.const_get(class_name.to_s)
     end
+
+    def outcome
+      Future.new(self)
+    end
   end
 end

@@ -12,6 +12,8 @@ RSpec.describe Conflow::Flow, redis: true, fixtures: true do
   end
 
   shared_examples "flow changing value" do |*values| # multiple values mean "OR"
+    before { allow(Conflow::Promise).to receive(:new).and_call_original }
+
     let(:matchers) { values.map { |v| change { test_value }.to(v) } }
     let(:expectation) { matchers.inject { |result, matcher| result.or(matcher) } }
 
@@ -19,7 +21,8 @@ RSpec.describe Conflow::Flow, redis: true, fixtures: true do
     it { expect { subject }.to change { flow.finished? }.to true }
 
     let(:expected_keys) { ["test_key", Conflow::Flow.counter_key, Conflow::Job.counter_key] }
-    it { expect { subject }.to change { redis.keys("*") }.to match_array expected_keys }
+
+    it { expect { subject }.to change { redis.keys("*") }.to include(*expected_keys) }
   end
 
   context "for flow with multiple independent jobs" do
@@ -58,6 +61,29 @@ RSpec.describe Conflow::Flow, redis: true, fixtures: true do
     it "calls hook" do
       expect($stdout).to receive(:puts).with("Fizz")
       subject
+    end
+  end
+
+  context "for flow with promises" do
+    context "simple usage" do
+      before do
+        job = flow.run Operation, params: { operator: :+, number: 5 }
+        flow.run Operation, params: { operator: :*, number: job.outcome[:value] }
+      end
+
+      it_behaves_like "flow changing value", 25
+    end
+
+    context "when same promise is used multiple times" do
+      let(:initial_value) { 4 }
+      before do
+        job = flow.run Operation, params: { operator: :-, number: 2 }
+        value = job.outcome[:value]
+        flow.run Operation, params: { operator: :*, number: value }
+        flow.run Operation, params: { operator: :*, number: value }
+      end
+
+      it_behaves_like "flow changing value", 8
     end
   end
 

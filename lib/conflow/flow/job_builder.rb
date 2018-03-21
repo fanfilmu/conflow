@@ -4,20 +4,20 @@ module Conflow
   class Flow < Conflow::Redis::Field
     # Handles creating jobs
     class JobBuilder
-      # used to map class names to jobs
       attr_reader :context
 
-      # Initializes new builder with empty context
       def initialize
         @context = {}
       end
 
-      # builds job with proper parameters
       def call(worker_class, params, dependencies, hook)
         job = initialize_job(worker_class)
-        assign_job_attributes(job, params, hook)
 
-        [job, build_dependencies(dependencies)]
+        promises, params = extract_promises(job, params)
+        dependencies = build_dependencies(promises, dependencies)
+        assign_job_attributes(job, promises, params, hook)
+
+        [job, dependencies]
       end
 
       private
@@ -29,13 +29,30 @@ module Conflow
         end
       end
 
-      def assign_job_attributes(job, params, hook)
+      def assign_job_attributes(job, promises, params, hook)
         job.hook = hook if hook
         job.params = params if params.any?
+        job.promise_ids.push(*promises.map(&:id)) if promises.any?
       end
 
-      def build_dependencies(dependencies)
-        prepare_dependencies(dependencies).compact.uniq
+      def extract_promises(job, params)
+        params = params.dup
+
+        promises = params.map do |key, value|
+          next unless value.is_a?(Conflow::Future)
+
+          params.delete(key)
+          value.build_promise(job, key)
+        end.compact
+
+        [promises, params]
+      end
+
+      def build_dependencies(promises, dependencies)
+        promise_jobs = promises.map { |promise| Conflow::Job.new(promise.job_id.value) }
+        dependencies = prepare_dependencies(dependencies)
+
+        (promise_jobs + dependencies).compact.uniq
       end
 
       def prepare_dependencies(dependencies)
