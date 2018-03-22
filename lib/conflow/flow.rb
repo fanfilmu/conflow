@@ -41,6 +41,7 @@ module Conflow
     has_many :jobs, Conflow::Job
     field :queued_jobs, :set
     field :indegree,    :sorted_set
+    field :lock,        :value
 
     # Create new flow with given parameters
     # @param args [Array<Object>] any parameters that will be passed to {#configure} method
@@ -56,13 +57,17 @@ module Conflow
     #   MyFlow.create(id: 320, strict: false)
     #   MyFlow.create(id: 15, strict: true)
     def self.create(*args)
-      new.tap { |flow| flow.configure(*args) }
+      new.tap do |flow|
+        flow.with_lock do
+          flow.configure(*args)
+        end
+      end
     end
 
     # Returns whether or not the flow is finished (all jobs were processed)
     # @return [Boolean] true if no pending jobs
     def finished?
-      queued_jobs.size.zero? && indegree.size.zero?
+      lock.value != 1 && queued_jobs.size.zero? && indegree.size.zero?
     end
 
     # @abstract
@@ -71,5 +76,15 @@ module Conflow
     # @param args [Array<Object>] any arguments needed to start a flow
     # @see create
     def configure(*args); end
+
+    # Lock prevents flow from enqueuing jobs during configuration - it could happen that first job is finished
+    # before second is enqueued, therefore "finishing" the flow.
+    # @api private
+    def with_lock
+      self.lock = 1
+      yield
+      self.lock = 0
+      queue_available_jobs
+    end
   end
 end

@@ -41,6 +41,8 @@ module Conflow
       private
 
       def queue_available_jobs
+        return unless lock.value != 1
+
         call_script(Conflow::Redis::QueueJobsScript)&.each do |job_id|
           queue Conflow::Job.new(job_id)
         end

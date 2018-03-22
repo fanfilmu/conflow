@@ -1,16 +1,18 @@
 # frozen_string_literal: true
 
 RSpec.describe Conflow::Flow::JobHandler, redis: true do
-  let(:dummy)    { Class.new.tap { |klass| klass.include(described_class) } }
-  let(:instance) { dummy.new }
-  let(:indegree) { instance_double(Conflow::Redis::SortedSetField) }
-  let(:finished) { false }
+  let(:dummy)      { Class.new.tap { |klass| klass.include(described_class) } }
+  let(:instance)   { dummy.new }
+  let(:indegree)   { instance_double(Conflow::Redis::SortedSetField) }
+  let(:finished)   { false }
+  let(:lock_value) { 0 }
 
   before do
     allow(instance).to receive(:indegree).and_return indegree
     allow(instance).to receive(:queue)
     allow(instance).to receive(:finished?).and_return(finished)
     allow(instance).to receive(:a_method).and_return(:result)
+    allow(instance).to receive(:lock).and_return(double(value: lock_value))
 
     allow(Conflow::Redis::AddJobScript).to receive(:call)
     allow(Conflow::Redis::QueueJobsScript).to receive(:call).and_return(["10"])
@@ -81,6 +83,14 @@ RSpec.describe Conflow::Flow::JobHandler, redis: true do
       let(:dependencies) { [Conflow::Job.new, Conflow::Job.new] }
 
       it_behaves_like "method calling add job script and queueing jobs"
+    end
+
+    context "when locked" do
+      let(:lock_value) { 1 }
+
+      it "doesn't enqueue jobs" do
+        expect(instance).to_not receive(:queue)
+      end
     end
   end
 
