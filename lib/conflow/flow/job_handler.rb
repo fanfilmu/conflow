@@ -32,7 +32,7 @@ module Conflow
       # @param job [Conflow::Job] job to be marked as finished
       # @param result [Object] result of the job
       def finish(job, result = nil)
-        job.result = result if result
+        job.result = result if result.is_a?(Hash) && result.any?
         call_script(Conflow::Redis::CompleteJobScript, job)
         queue_available_jobs
         destroy! if finished?

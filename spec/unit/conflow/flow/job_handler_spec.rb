@@ -95,9 +95,10 @@ RSpec.describe Conflow::Flow::JobHandler, redis: true do
   end
 
   describe "#finish" do
-    subject { instance.finish(job, result: 114) }
+    subject { instance.finish(job, result) }
 
-    let(:job) { instance_double(Conflow::Job, :result= => true) }
+    let(:job)    { instance_double(Conflow::Job, :result= => true) }
+    let(:result) { { result: 114 } }
 
     it "calls complete job script and enqueues new jobs" do
       expect(Conflow::Redis::CompleteJobScript).to receive(:call).with(instance, job)
@@ -116,6 +117,14 @@ RSpec.describe Conflow::Flow::JobHandler, redis: true do
 
       it "removes flow" do
         expect(instance).to receive(:destroy!)
+      end
+    end
+
+    context "when result is not a hash" do
+      let(:result) { true }
+
+      it "doesn't assign it" do
+        expect(job).to_not receive(:result=)
       end
     end
   end

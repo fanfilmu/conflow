@@ -1,3 +1,7 @@
+## 0.4.2
+
+- If job didn't return a hash, result will not be persisted at all
+
 ## 0.4.1
 
 - Prevent enqueing jobs and finishing flow during flow configuration
